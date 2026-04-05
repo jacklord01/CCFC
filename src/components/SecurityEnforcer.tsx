@@ -13,7 +13,11 @@ export default function SecurityEnforcer({ children }: { children: React.ReactNo
   useEffect(() => {
     if (status === "loading") return;
     if (!session) {
-      setLoading(false);
+      if (pathname === "/admin/login") {
+        setLoading(false);
+      } else {
+        router.push("/admin/login");
+      }
       return;
     }
 
