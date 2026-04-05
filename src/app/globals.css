@@ -1,48 +1,32 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Outfit:wght@500;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Dynamic Design System Variables */
-  --primary-color: #0c823f; /* Celtic Green */
-  --primary-dark: #075f2e;
-  --secondary-color: #ffffff; /* White stripes */
-  --accent-color: #ffd700; /* Gold */
+  /* True Castlebar Celtic Football Club Design System */
+  --primary-color: #008236; /* Figma Provided Celtic Green */
+  --primary-dark: #006b2b;
   
-  --background-color: #f7f9fa;
-  --surface-color: #ffffff;
-  --surface-hover: #f1f3f4;
+  --background-main: #FFFFFF;
+  --background-muted: #F9FAFB;
+  --footer-bg: #0B0F19; /* Midnight Navy Accent */
   
-  --text-main: #1a202c;
-  --text-muted: #4a5568;
-  --text-light: #f7fafc;
+  --text-main: #111827;
+  --text-muted: #6B7280;
   
-  --border-color: #e2e8f0;
+  --border-color: #E5E7EB;
+  
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 24px;
+  --radius-full: 9999px;
   
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 
-  --radius-sm: 0.25rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 1rem;
-  
   --font-sans: 'Inter', sans-serif;
-  --font-display: 'Outfit', sans-serif;
   
   --transition-fast: 150ms ease-in-out;
   --transition-normal: 300ms ease-in-out;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background-color: #0f172a;
-    --surface-color: #1e293b;
-    --surface-hover: #334155;
-    
-    --text-main: #f8fafc;
-    --text-muted: #94a3b8;
-    
-    --border-color: #334155;
-  }
 }
 
 * {
@@ -53,18 +37,17 @@
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--background-color);
+  background-color: var(--background-muted);
   color: var(--text-main);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-display);
+  font-family: var(--font-sans);
   font-weight: 700;
   line-height: 1.2;
-  margin-bottom: 1rem;
-  color: var(--primary-color);
+  color: var(--text-main);
 }
 
 a {
@@ -87,7 +70,7 @@ button {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 0 1.5rem;
 }
 
 .btn-primary {
@@ -104,45 +87,74 @@ button {
 
 .btn-primary:hover {
   background-color: var(--primary-dark);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
   color: white;
 }
 
 .btn-secondary {
   display: inline-block;
   background-color: transparent;
-  color: var(--primary-color);
+  color: var(--text-main);
   padding: 0.75rem 1.5rem;
   border-radius: var(--radius-md);
   font-weight: 600;
-  border: 2px solid var(--primary-color);
+  border: 1px solid var(--border-color);
   transition: all var(--transition-fast);
   text-align: center;
 }
 
 .btn-secondary:hover {
-  background-color: var(--primary-color);
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
 }
 
+.btn-outline-white {
+  display: inline-block;
+  background-color: transparent;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  border: 1.5px solid rgba(255,255,255,0.4);
+  transition: all var(--transition-fast);
+  text-align: center;
+}
+
+.btn-outline-white:hover {
+  border-color: white;
+  background-color: rgba(255,255,255,0.1);
+  color: white;
+}
+
+/* Figma Card Layouts */
 .card {
-  background-color: var(--surface-color);
-  border-radius: var(--radius-lg);
+  background-color: var(--background-main);
+  border-radius: var(--radius-md);
   padding: 1.5rem;
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-color);
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  overflow: hidden;
 }
 
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
+.card-flush {
+  padding: 0;
+}
+
+.card-header-green {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 0.5rem 1rem;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 .section {
+  padding: 4rem 0;
+}
+
+.section-white {
+  background-color: var(--background-main);
   padding: 4rem 0;
 }
 

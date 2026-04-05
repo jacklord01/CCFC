@@ -10,11 +10,17 @@ export const metadata: Metadata = {
   keywords: ["Castlebar Celtic", "Football Club", "CCFC", "Mayo Football", "Soccer"],
 };
 
-export default function RootLayout({
+import { getClubSettings } from "@/lib/settings";
+
+export const dynamic = "force-dynamic";
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const settings = await getClubSettings();
+
   return (
     <html lang="en">
       <head>
@@ -38,9 +44,9 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <Navbar />
+        <Navbar settings={settings} />
         <main style={{ minHeight: "80vh" }}>{children}</main>
-        <Footer />
+        <Footer settings={settings} />
       </body>
     </html>
   );

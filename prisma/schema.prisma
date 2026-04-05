@@ -1,12 +1,111 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String   @id @default(uuid())
+  email              String   @unique
+  password           String
+  role               String   @default("CLUB_ADMIN") // DEV_ADMIN or CLUB_ADMIN
+  name               String?
+  mustChangePassword Boolean  @default(false)
+  twoFactorEnabled   Boolean  @default(false)
+  twoFactorSecret    String?
+  isActive           Boolean  @default(true)
+  createdAt          DateTime @default(now())
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  adminId    String
+  adminName  String
+  action     String   // e.g. "SYNC_MATCHES", "UPDATE_PRODUCT", "APPROVE_PHOTO"
+  targetType String   // e.g. "MATCH", "PRODUCT", "GALLERY"
+  targetId   String?
+  details    String?  // Optional JSON for what changed
+  timestamp  DateTime @default(now())
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  price       Float
+  stock       Int      @default(0)
+  category    String   // MERCHANDISE, TICKET, REGISTRATION, CENTENARY, RAFFLE, GAME
+  imageUrl    String?
+  orders      Order[]
+}
+
+model Volunteer {
+  id          String   @id @default(uuid())
+  name        String
+  role        String
+  description String?  // 2-3 line bio
+  imageUrl    String?
+  order       Int      @default(0) // Sorting order
+}
+
+model GalleryItem {
+  id        String   @id @default(uuid())
+  url       String
+  caption   String?
+  category  String   // MATCHES, TEAMS, YOUTH, EVENTS
+  status    String   @default("APPROVED") // PENDING (for public uploads), APPROVED
+  createdAt DateTime @default(now())
+}
+
+model Order {
+  id             String   @id @default(uuid())
+  productId      String
+  product        Product  @relation(fields: [productId], references: [id])
+  buyerName      String
+  buyerContact   String   // WhatsApp or Email
+  quantity       Int      @default(1)
+  totalPrice     Float
+  paymentStatus  String   @default("PENDING") // PENDING, PAID, FULFILLED
+  metadata       String?  // JSON field for "Guess the Score" predictions
+  createdAt      DateTime @default(now())
+}
+
+model ContactSubmission {
+  id        String   @id @default(uuid())
+  name      String
+  email     String?
+  phone     String
+  message   String
+  status    String   @default("UNREAD") // UNREAD, READ, ARCHIVED
+  createdAt DateTime @default(now())
+}
+
+model Match {
+  id          String   @id @default(uuid())
+  type        String   // UPCOMING, RESULT
+  homeTeam    String
+  awayTeam    String
+  score       String?
+  date        DateTime
+  location    String
+}
+
+// Manageable Global Settings (The "Common Denominator")
+model Setting {
+  id    String @id @default(uuid())
+  key   String @unique // "CLUB_NAME", "CLUB_LOGO", "WHATSAPP_LINK", etc.
+  value String
+}
+
+// Media / Asset Management
+model Media {
+  id        String   @id @default(uuid())
+  url       String
+  filename  String
+  fileSize  Int?
+  mimeType  String?
+  createdAt DateTime @default(now())
 }
