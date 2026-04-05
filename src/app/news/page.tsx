@@ -4,6 +4,13 @@ import NewsClient from "@/components/NewsClient";
 
 export const dynamic = "force-dynamic";
 
+function toTimestamp(value: any, fallback: any) {
+  if (typeof value === "string" || typeof value === "number" || value instanceof Date) {
+    return new Date(value).getTime();
+  }
+  return new Date(fallback).getTime();
+}
+
 export default async function NewsPage() {
   // Fetch from Contentful
   const contentfulArticles = await getArticles();
@@ -28,10 +35,10 @@ export default async function NewsPage() {
     }
   }));
 
-  // Combine and sort by date
+  // Combine and sort by date safely
   const allArticles = [...transformedLocal, ...contentfulArticles].sort((a, b) => {
-    const dateA = new Date(a.fields.date || a.sys.createdAt).getTime();
-    const dateB = new Date(b.fields.date || b.sys.createdAt).getTime();
+    const dateA = toTimestamp(a.fields?.date, a.sys.createdAt);
+    const dateB = toTimestamp(b.fields?.date, b.sys.createdAt);
     return dateB - dateA;
   });
   
