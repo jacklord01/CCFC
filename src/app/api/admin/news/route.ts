@@ -37,7 +37,7 @@ export async function POST(req: Request) {
         imageUrl,
         category: category || "UPDATE",
         slug: `${slug}-${Date.now().toString().slice(-4)}`,
-        author: session.user.name || "Club Admin",
+        author: session?.user?.name ?? "Club Admin",
         isPublished: isPublished || false,
         publishedAt: isPublished ? new Date() : null
       }
@@ -46,8 +46,8 @@ export async function POST(req: Request) {
     // Log the action
     await prisma.auditLog.create({
       data: {
-        adminId: (session.user as any).id,
-        adminName: session.user.name || "Unknown",
+        adminId: (session?.user as any)?.id ?? "system",
+        adminName: session?.user?.name ?? "Unknown",
         action: "CREATE_ARTICLE",
         targetType: "ARTICLE",
         targetId: article.id,

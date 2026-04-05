@@ -7,7 +7,7 @@ import bcrypt from "bcryptjs";
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   
-  if (!session || (session.user as any).role !== "DEV_ADMIN") {
+  if (!session || (session.user as any)?.role !== "DEV_ADMIN") {
     return NextResponse.json({ error: "Unauthorized access. Super Admin privileges required." }, { status: 401 });
   }
 
@@ -36,8 +36,8 @@ export async function POST(req: Request) {
     // Audit Log
     await prisma.auditLog.create({
       data: {
-        adminId: (session.user as any).id,
-        adminName: session.user.name || "System Admin",
+        adminId: (session?.user as any)?.id ?? "system",
+        adminName: session?.user?.name ?? "System Admin",
         action: "PASSWORD_RESET_MANUAL",
         targetType: "USER",
         targetId: userId,
