@@ -16,31 +16,38 @@ export const authOptions: AuthOptions = {
           return null;
         }
 
-        // Mock bypass for easy dev testing 
-        if (credentials.email === "pro@castlebarceltic.ie" && credentials.password === "password123") {
-           return { id: "1", name: "Club PRO", email: "pro@castlebarceltic.ie", role: "DEV_ADMIN" };
+        try {
+          const user = await prisma.user.findUnique({
+            where: { email: credentials.email }
+          });
+
+          if (!user) {
+            console.error(`[AUTH] User not found: ${credentials.email}`);
+            return null;
+          }
+
+          const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+
+          if (!isPasswordValid) {
+            console.error(`[AUTH] Invalid password for: ${credentials.email}`);
+            return null;
+          }
+
+          if (!user.isActive) {
+            console.error(`[AUTH] Account suspended: ${credentials.email}`);
+            return null;
+          }
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+          };
+        } catch (error) {
+          console.error("[AUTH] Server-side error during authorization:", error);
+          throw new Error("Internal authorization error");
         }
-
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email }
-        });
-
-        if (!user) {
-          return null;
-        }
-
-        const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
-
-        if (!isPasswordValid) {
-          return null;
-        }
-
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-        };
       }
     })
   ],
@@ -65,7 +72,8 @@ export const authOptions: AuthOptions = {
   },
   pages: {
     signIn: "/admin/login",
+    error: "/admin/login", // Redirect errors to login page
   },
   secret: process.env.NEXTAUTH_SECRET,
-  debug: process.env.NODE_VERSION !== "production",
+  debug: process.env.NODE_ENV === "development",
 };

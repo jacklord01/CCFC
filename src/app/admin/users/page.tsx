@@ -156,7 +156,40 @@ export default function AdminUsersPage() {
                         </div>
                       </div>
 
-                      <div style={{ display: "flex", gap: "8px" }}>
+                      <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                        {isSuperAdmin && (
+                          <div style={{ display: "flex", gap: "6px", alignItems: "center", marginRight: "12px", padding: "4px 12px", backgroundColor: "#f9fafb", borderRadius: "8px", border: "1px solid #e5e7eb" }}>
+                            <Lock size={14} color="#9ca3af" />
+                            <input 
+                              type="password" placeholder="New Password (10+)" 
+                              id={`pw-${u.id}`}
+                              style={{ width: "120px", border: "none", backgroundColor: "transparent", fontSize: "11px", fontWeight: "700" }} 
+                            />
+                            <button 
+                              onClick={async () => {
+                                const pw = (document.getElementById(`pw-${u.id}`) as HTMLInputElement).value;
+                                if (pw.length < 10) return alert("Security Policy: New password must be at least 10 characters.");
+                                if (!confirm("Override credentials? This action is tracked.")) return;
+                                
+                                const res = await fetch("/api/admin/users/reset-password", {
+                                  method: "POST",
+                                  headers: { "Content-Type": "application/json" },
+                                  body: JSON.stringify({ userId: u.id, newPassword: pw })
+                                });
+                                
+                                if (res.ok) {
+                                  alert("Credentials overridden successfully.");
+                                  (document.getElementById(`pw-${u.id}`) as HTMLInputElement).value = "";
+                                } else {
+                                  alert("Override failed. Unauthorized.");
+                                }
+                              }}
+                              style={{ backgroundColor: "#111827", color: "white", padding: "4px 8px", borderRadius: "4px", fontSize: "10px", fontWeight: "900", border: "none", cursor: "pointer" }}
+                            >
+                               RESET
+                            </button>
+                          </div>
+                        )}
                         {isSuperAdmin && (
                           <>
                             {u.isActive !== false ? (

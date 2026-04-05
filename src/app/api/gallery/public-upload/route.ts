@@ -47,8 +47,12 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ success: true, count: uploadedRecords.length });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Public Gallery Upload Error:", error);
-    return NextResponse.json({ error: "Cloud upload failed" }, { status: 500 });
+    return NextResponse.json({ 
+      error: "Cloud upload failed", 
+      details: error.message,
+      code: error.code || "UNKNOWN"
+    }, { status: 500 });
   }
 }

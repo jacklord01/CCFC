@@ -27,4 +27,12 @@ export async function getArticleBySlug(slug: string) {
   }
   return null;
 }
+export async function getArticles() {
+  const entries = await client.getEntries({
+    content_type: "article",
+    order: ["-sys.createdAt"],
+    include: 2,
+  });
 
+  return entries.items;
+}

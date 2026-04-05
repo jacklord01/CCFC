@@ -27,7 +27,7 @@ export default function AdminSidebar({ email, sumupLink }: { email: string; sumu
     { href: "/admin/shop", icon: <ShoppingBag size={18} />, label: "Inventory Management", category: "Operations" },
     { href: "/admin/volunteers", icon: <Users size={18} />, label: "Personnel & Staff", category: "Operations" },
     { href: "/admin/gallery", icon: <ImageIcon size={18} />, label: "Media Moderation", category: "Operations" },
-    { href: "/admin/news/preview", icon: <Newspaper size={18} />, label: "News & Bulletins", category: "Operations" },
+    { href: "/admin/news/new", icon: <Newspaper size={18} />, label: "News & Bulletins", category: "Operations" },
     { href: "/admin/audit-log", icon: <History size={18} />, label: "System Audit Log", category: "Security" },
     { href: "/admin/users", icon: <ShieldCheck size={18} />, label: "Team & Permissions", category: "Security" },
     { href: "/admin/settings", icon: <Settings size={18} />, label: "Club System Config", category: "Security" },
