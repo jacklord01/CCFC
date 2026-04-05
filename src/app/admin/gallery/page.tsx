@@ -7,7 +7,7 @@ export default function AdminGalleryPage() {
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
-    url: "",
+    urls: [] as string[],
     caption: "",
     category: "MATCHES"
   });
@@ -26,17 +26,21 @@ export default function AdminGalleryPage() {
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
     setUploading(true);
-    const form = new FormData();
-    form.append("file", file);
-
+    const uploadedUrls: string[] = [];
+    
     try {
-      const res = await fetch("/api/upload", { method: "POST", body: form });
-      const data = await res.json();
-      setFormData({ ...formData, url: data.url });
+      for (let i = 0; i < files.length; i++) {
+        const fileForm = new FormData();
+        fileForm.append("file", files[i]);
+        const res = await fetch("/api/upload", { method: "POST", body: fileForm });
+        const data = await res.json();
+        if (data.url) uploadedUrls.push(data.url);
+      }
+      setFormData(prev => ({ ...prev, urls: [...prev.urls, ...uploadedUrls] }));
     } finally {
       setUploading(false);
     }
@@ -45,15 +49,18 @@ export default function AdminGalleryPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    const res = await fetch("/api/gallery", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData)
-    });
-    if (res.ok) {
-      setFormData({ url: "", caption: "", category: "MATCHES" });
-      fetchGallery();
+    
+    // Process each URL as a separate gallery item
+    for (const fileUrl of formData.urls) {
+      await fetch("/api/gallery", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: fileUrl, caption: formData.caption, category: formData.category })
+      });
     }
+
+    setFormData({ urls: [], caption: "", category: "MATCHES" });
+    fetchGallery();
     setSaving(false);
   };
 
@@ -108,9 +115,10 @@ export default function AdminGalleryPage() {
             </select>
           </div>
           <div style={{ flex: "1 1 200px" }}>
-             <input type="file" accept="image/*" onChange={handleFileUpload} disabled={uploading} />
+             <input type="file" accept="image/*" multiple onChange={handleFileUpload} disabled={uploading} />
+             {formData.urls.length > 0 && <div style={{ fontSize: "12px", color: "#008236", marginTop: "4px" }}>{formData.urls.length} files staged for upload</div>}
           </div>
-          <button type="submit" disabled={saving || uploading || !formData.url} style={{ backgroundColor: "#008236", color: "white", padding: "10px 24px", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "600" }}>
+          <button type="submit" disabled={saving || uploading || formData.urls.length === 0} style={{ backgroundColor: "#008236", color: "white", padding: "10px 24px", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "600" }}>
             {saving ? "Publishing..." : "Publish to Gallery"}
           </button>
         </form>

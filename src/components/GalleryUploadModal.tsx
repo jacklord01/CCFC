@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 export default function GalleryUploadModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const [caption, setCaption] = useState("");
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState("");
@@ -12,27 +12,39 @@ export default function GalleryUploadModal({ isOpen, onClose }: { isOpen: boolea
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!file) return;
+    if (files.length === 0) return;
 
     setUploading(true);
     setMessage("");
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("caption", caption);
-    formData.append("category", "EVENTS"); // Supporters only upload to EVENTS
+    let successCount = 0;
 
     try {
-      const res = await fetch("/api/gallery/public-upload", {
-        method: "POST",
-        body: formData,
-      });
+      for (let i = 0; i < files.length; i++) {
+        const formData = new FormData();
+        formData.append("files", files[i]);
+        formData.append("caption", caption);
+        formData.append("category", "EVENTS"); // Supporters only upload to EVENTS
 
-      if (res.ok) {
-        setMessage("Success! Your photo has been sent for moderation. Thank you for contributing to the club gallery!");
-        setFile(null);
+        const res = await fetch("/api/gallery/public-upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (res.ok) {
+          successCount++;
+        }
+      }
+
+      if (successCount === files.length) {
+        setMessage("Success! Your photos have been sent for moderation. Thank you for contributing to the club gallery!");
+        setFiles([]);
         setCaption("");
         setTimeout(onClose, 3000);
+      } else if (successCount > 0) {
+        setMessage(`Partial success. ${successCount} of ${files.length} photos were uploaded.`);
+        setFiles([]);
+        setTimeout(onClose, 4000);
       } else {
         setMessage("Upload failed. Please try again.");
       }
@@ -68,8 +80,8 @@ export default function GalleryUploadModal({ isOpen, onClose }: { isOpen: boolea
           <div>
             <label style={{ display: "block", fontSize: "14px", fontWeight: "600", marginBottom: "8px" }}>Select Photo</label>
             <input 
-              type="file" accept="image/*" required 
-              onChange={(e) => setFile(e.target.files?.[0] || null)}
+              type="file" accept="image/*" multiple required 
+              onChange={(e) => e.target.files && setFiles(Array.from(e.target.files))}
               style={{ fontSize: "14px" }}
             />
           </div>
@@ -86,15 +98,15 @@ export default function GalleryUploadModal({ isOpen, onClose }: { isOpen: boolea
 
           <button 
             type="submit" 
-            disabled={uploading || !file}
+            disabled={uploading || files.length === 0}
             style={{
               backgroundColor: "#25D366", color: "white", padding: "14px",
               borderRadius: "8px", border: "none", fontWeight: "700",
-              cursor: (uploading || !file) ? "not-allowed" : "pointer",
-              opacity: (uploading || !file) ? 0.7 : 1
+              cursor: (uploading || files.length === 0) ? "not-allowed" : "pointer",
+              opacity: (uploading || files.length === 0) ? 0.7 : 1
             }}
           >
-            {uploading ? "Uploading..." : "Submit Photo"}
+            {uploading ? "Uploading..." : `Submit ${files.length > 1 ? "Photos" : "Photo"}`}
           </button>
         </form>
       </div>

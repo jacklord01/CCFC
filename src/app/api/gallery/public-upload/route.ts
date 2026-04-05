@@ -7,12 +7,12 @@ import path from "path";
 export async function POST(req: Request) {
   try {
     const formData = await req.formData();
-    const file = formData.get("file") as File;
+    const files = formData.getAll("files") as File[];
     const caption = formData.get("caption") as string;
     const category = formData.get("category") as string || "EVENTS";
 
-    if (!file) {
-      return NextResponse.json({ error: "No file" }, { status: 400 });
+    if (!files || files.length === 0) {
+      return NextResponse.json({ error: "No files" }, { status: 400 });
     }
 
     // Restriction: supporters can only upload to EVENTS category publicly
@@ -20,29 +20,33 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Public uploads restricted to Events" }, { status: 403 });
     }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
     const uploadDir = path.join(process.cwd(), "public", "uploads", "public-gallery");
     await mkdir(uploadDir, { recursive: true });
 
-    const filename = `public-${Date.now()}-${file.name.replace(/\s+/g, "-")}`;
-    const filePath = path.join(uploadDir, filename);
-    await writeFile(filePath, buffer);
+    const uploadedUrls = [];
 
-    const fileUrl = `/uploads/public-gallery/${filename}`;
+    for (const file of files) {
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
 
-    // Create a PENDING item for moderation
-    const galleryItem = await prisma.galleryItem.create({
-      data: {
-        url: fileUrl,
-        caption: caption || "Supporter Upload",
-        category: "EVENTS",
-        status: "PENDING" // MODERATION REQUIRED
-      }
-    });
+      const filename = `public-${Date.now()}-${file.name.replace(/\s+/g, "-")}`;
+      const filePath = path.join(uploadDir, filename);
+      await writeFile(filePath, buffer);
 
-    return NextResponse.json({ success: true, url: fileUrl, id: galleryItem.id });
+      const fileUrl = `/uploads/public-gallery/${filename}`;
+      uploadedUrls.push(fileUrl);
+
+      await prisma.galleryItem.create({
+        data: {
+          url: fileUrl,
+          caption: caption || null,
+          category: "EVENTS",
+          status: "PENDING"
+        }
+      });
+    }
+
+    return NextResponse.json({ success: true, urls: uploadedUrls });
   } catch (error) {
     console.error("Public Gallery Upload Error:", error);
     return NextResponse.json({ error: "Public upload failed" }, { status: 500 });

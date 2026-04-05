@@ -50,9 +50,27 @@ export default function AdminVolunteersPage() {
     try {
       const res = await fetch("/api/upload", { method: "POST", body: form });
       const data = await res.json();
-      setFormData({ ...formData, imageUrl: data.url });
+      setFormData(prev => ({ ...prev, imageUrl: data.url }));
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleTemplateSelect = (templateId: string) => {
+    let text = "";
+    switch(templateId) {
+      case "sg":
+        text = "Responsible for ensuring child safety and welfare across all club activities, maintaining compliance with national standards.";
+        break;
+      case "cc":
+        text = "Leading the club's strategic direction, coordinating with the committee, and representing Celtic FC in the community.";
+        break;
+      case "hc":
+        text = "Overseeing technical development, training programs, and match-day strategy for our senior and youth teams.";
+        break;
+    }
+    if (text) {
+      setFormData(prev => ({ ...prev, description: text }));
     }
   };
 
@@ -96,6 +114,8 @@ export default function AdminVolunteersPage() {
   };
 
   if (loading) return <div style={{ padding: "40px", textAlign: "center", color: "#6b7280" }}>Loading club personnel...</div>;
+
+  const isBioLengthValid = formData.description.length >= 90 && formData.description.length <= 150;
 
   return (
     <div style={{ maxWidth: "1200px" }}>
@@ -190,13 +210,41 @@ export default function AdminVolunteersPage() {
               </div>
 
               <div>
-                <label style={labelStyle}>Short Bio (2-3 Lines)</label>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "8px" }}>
+                  <label style={{ ...labelStyle, marginBottom: 0 }}>Short Bio (2-3 Lines)</label>
+                  <select 
+                    onChange={(e) => handleTemplateSelect(e.target.value)}
+                    style={{ fontSize: "11px", padding: "4px 8px", backgroundColor: "rgba(255,255,255,0.05)", color: "white", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px", outline: "none", cursor: "pointer" }}
+                    value="" // Always show "Quick Templates"
+                  >
+                    <option value="" disabled>Quick Templates</option>
+                    <option value="sg" style={{ color: "black" }}>Safe Guarding Officer</option>
+                    <option value="cc" style={{ color: "black" }}>Club Chairman</option>
+                    <option value="hc" style={{ color: "black" }}>Head Coach</option>
+                  </select>
+                </div>
                 <textarea 
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  style={{ ...inputStyle, minHeight: "80px" }}
+                  style={{ 
+                    ...inputStyle, 
+                    minHeight: "80px",
+                    borderColor: formData.description.length > 0 && !isBioLengthValid ? "#ef4444" : "rgba(255,255,255,0.1)"
+                  }}
                   rows={3}
+                  minLength={90}
+                  maxLength={150}
+                  required
                 />
+                <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "4px" }}>
+                  <span style={{ 
+                    fontSize: "10px", 
+                    fontWeight: "700",
+                    color: formData.description.length === 0 ? "#9ca3af" : isBioLengthValid ? "#008236" : "#ef4444" 
+                  }}>
+                    {formData.description.length} / 150 (Min: 90)
+                  </span>
+                </div>
               </div>
 
               <div>
@@ -216,7 +264,15 @@ export default function AdminVolunteersPage() {
                 {editingId && (
                   <button type="button" onClick={() => { setEditingId(null); setFormData({name: "", role: "", description: "", imageUrl: "", order: 0}); }} style={{ flex: 1, padding: "14px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.1)", background: "none", color: "white", fontWeight: "700", cursor: "pointer" }}>Cancel</button>
                 )}
-                <button type="submit" disabled={saving || uploading} style={{ flex: 2, backgroundColor: "#008236", color: "white", padding: "14px", borderRadius: "10px", border: "none", fontWeight: "900", cursor: "pointer", boxShadow: "0 10px 20px rgba(0,130,54,0.2)" }}>
+                <button 
+                  type="submit" 
+                  disabled={saving || uploading || !isBioLengthValid} 
+                  style={{ 
+                    flex: 2, backgroundColor: "#008236", color: "white", padding: "14px", borderRadius: "10px", 
+                    border: "none", fontWeight: "900", cursor: "pointer", boxShadow: "0 10px 20px rgba(0,130,54,0.2)",
+                    opacity: (saving || uploading || !isBioLengthValid) ? 0.5 : 1 
+                  }}
+                >
                    {saving ? "Saving..." : editingId ? "Save Changes" : "Add Personnel"}
                 </button>
               </div>

@@ -3,6 +3,17 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { recordAuditAction } from "@/lib/audit";
+import { z } from "zod";
+
+export const dynamic = "force-dynamic";
+
+const volunteerSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  role: z.string().min(1, "Role is required"),
+  description: z.string().min(90, "Bio must be at least 90 characters").max(150, "Bio must be at most 150 characters"),
+  imageUrl: z.string().optional(),
+  order: z.number().optional()
+});
 
 export async function GET() {
   const volunteers = await prisma.volunteer.findMany({
@@ -16,6 +27,11 @@ export async function POST(req: Request) {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const data = await req.json();
+  const parsed = volunteerSchema.safeParse(data);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
+  }
+
   const volunteer = await prisma.volunteer.create({
     data: {
       name: data.name,
@@ -37,6 +53,11 @@ export async function PATCH(req: Request) {
 
   const data = await req.json();
   const { id, ...updateData } = data;
+
+  const parsed = volunteerSchema.partial().safeParse(updateData);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
+  }
 
   const volunteer = await prisma.volunteer.update({
     where: { id },

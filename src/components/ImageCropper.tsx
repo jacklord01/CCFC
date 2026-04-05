@@ -122,9 +122,10 @@ export default function ImageCropper({ image, aspectRatio, onCrop, onCancel }: I
             alt="To crop" 
             draggable={false}
             style={{
-              transform: `translate(${position.x}px, ${position.y}px) rotate(${rotation}45deg) scale(${zoom})`,
+              transform: `translate(${position.x}px, ${position.y}px) rotate(${rotation}deg) scale(${zoom})`,
               maxWidth: "none",
-              userSelect: "none"
+              userSelect: "none",
+              transition: dragging ? "none" : "transform 0.1s ease-out"
             }}
           />
           
