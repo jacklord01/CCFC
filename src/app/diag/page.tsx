@@ -3,14 +3,14 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 
 export default async function DiagPage() {
+  const availableKeys = Object.keys(process.env).sort();
+  
   const envs = {
     DATABASE_URL: !!process.env.DATABASE_URL,
     NEXTAUTH_SECRET: !!process.env.NEXTAUTH_SECRET,
-    NEXTAUTH_URL: !!process.env.NEXTAUTH_URL,
-    S3_UPLOAD_KEY: !!process.env.S3_UPLOAD_KEY,
-    S3_UPLOAD_REGION: !!process.env.S3_UPLOAD_REGION,
-    S3_UPLOAD_BUCKET: !!process.env.S3_UPLOAD_BUCKET,
-    WEB3FORMS_ACCESS_KEY: !!process.env.WEB3FORMS_ACCESS_KEY,
+    NEXT_PUBLIC_DATADOG_ID: !!process.env.NEXT_PUBLIC_DATADOG_ID, // Example check
+    AMPLIFY_ENV: !!process.env.AMPLIFY_ENV,
+    NODE_ENV: process.env.NODE_ENV,
   };
 
   let dbStatus = "Checking...";
@@ -32,17 +32,10 @@ export default async function DiagPage() {
           {dbStatus}
         </div>
 
-        <h2 style={{ fontSize: "1.2rem", marginTop: "40px", marginBottom: "20px" }}>Environment Variables</h2>
-        <ul style={{ listStyle: "none", padding: 0 }}>
-          {Object.entries(envs).map(([key, value]) => (
-            <li key={key} style={{ padding: "12px 0", borderBottom: "1px solid #EEE", display: "flex", justifyContent: "space-between" }}>
-              <span>{key}</span>
-              <span style={{ fontWeight: "bold", color: value ? "#008236" : "#DC2626" }}>
-                {value ? "Present ✅" : "Missing ❌"}
-              </span>
-            </li>
-          ))}
-        </ul>
+        <h2 style={{ fontSize: "1.2rem", marginTop: "40px", marginBottom: "20px" }}>Detected System Keys</h2>
+        <div style={{ padding: "10px", backgroundColor: "#EEE", fontSize: "12px", maxHeight: "200px", overflow: "auto", borderRadius: "8px" }}>
+          {availableKeys.join(", ")}
+        </div>
       </div>
 
       <div style={{ marginTop: "40px", color: "#6B7280", fontSize: "14px" }}>
