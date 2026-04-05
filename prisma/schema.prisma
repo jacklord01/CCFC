@@ -110,3 +110,13 @@ model Media {
   mimeType  String?
   createdAt DateTime @default(now())
 }
+model MemberRequest {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  phone     String
+  type      String   // PLAYER_REG, VOLUNTEER
+  details   String?  // Interests or child details
+  status    String   @default("PENDING") // PENDING, REVIEWED, ARCHIVED
+  createdAt DateTime @default(now())
+}

@@ -113,7 +113,7 @@ export default async function Home() {
            <p className="text-muted" style={{ maxWidth: "600px", margin: "0 auto 3rem auto" }}>
               Join the hundreds of supporters who make Castlebar Celtic FC one of the most vibrant clubs in the country.
            </p>
-           <Link href="/shop" className="btn-primary">Become a Member</Link>
+           <Link href="/join" className="btn-primary">Become a Member</Link>
         </div>
       </section>
     </main>

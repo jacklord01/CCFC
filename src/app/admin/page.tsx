@@ -63,8 +63,9 @@ export default function AdminDashboardPage() {
          {/* Quick Links */}
          <div style={{ backgroundColor: "white", padding: "24px", borderRadius: "12px", border: "1px solid #e5e7eb", display: "flex", flexDirection: "column", gap: "12px" }}>
             <h3 style={{ fontSize: "18px", fontWeight: "700", marginBottom: "8px" }}>Quick Actions</h3>
-            <Link href="/admin/messages" style={{ color: "var(--primary-color)", textDecoration: "none", fontSize: "15px", fontWeight: "600" }}>→ Review Unread Messages</Link>
-            <Link href="/admin/gallery" style={{ color: "var(--primary-color)", textDecoration: "none", fontSize: "15px", fontWeight: "600" }}>→ Approve Supporter Photos</Link>
+             <Link href="/admin/messages" style={{ color: "var(--primary-color)", textDecoration: "none", fontSize: "15px", fontWeight: "600" }}>→ Review Unread Messages</Link>
+             <Link href="/admin/members" style={{ color: "var(--primary-color)", textDecoration: "none", fontSize: "15px", fontWeight: "600" }}>→ Review Membership Requests</Link>
+             <Link href="/admin/gallery" style={{ color: "var(--primary-color)", textDecoration: "none", fontSize: "15px", fontWeight: "600" }}>→ Approve Supporter Photos</Link>
             <Link href="/admin/news/preview" style={{ color: "var(--primary-color)", textDecoration: "none", fontSize: "15px", fontWeight: "600" }}>→ Preview Blog Drafts</Link>
          </div>
 

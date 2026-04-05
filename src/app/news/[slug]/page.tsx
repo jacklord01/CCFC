@@ -1,113 +1,150 @@
-import Link from "next/link";
+import { getArticleBySlug } from "@/lib/contentful";
+import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
+import { notFound } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 
-export default function NewsDetailsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function NewsDetailsPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const article: any = await getArticleBySlug(slug);
+
+  if (!article) {
+    notFound();
+  }
+
+  const { title, details, date, featuredImage, content } = article.fields;
+
   return (
     <main style={{ backgroundColor: "#FFFFFF" }}>
-       {/* Details Hero Outline */}
-       <section style={{ 
-          background: "linear-gradient(0deg, rgba(11, 17, 29, 0.6), rgba(11, 17, 29, 0.6)), url('/football_stadium_1775346359306.png')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          padding: "434px 0 60px",
-          color: "white"
-       }}>
-          <div className="container" style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
-             <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "18px" }}>
-                <span>📅</span>
-                <span>March 5, 2026</span>
-             </div>
-             <div>
-                <h1 style={{ fontSize: "60px", fontWeight: "600", textTransform: "uppercase", lineHeight: "83px", textShadow: "4px 10px 48px rgba(0, 0, 0, 0.37)", margin: "0 0 16px 0" }}>
-                   Castlebar Celtic Core Updates
-                </h1>
-                <p style={{ fontSize: "26px", margin: 0 }}>Community Success Update</p>
-             </div>
+      {/* 1. Header Hero with Uppercase Title and Text-Shadow */}
+      <section style={{ 
+        position: "relative",
+        height: "562px",
+        background: `linear-gradient(0deg, rgba(11, 17, 29, 0.6), rgba(11, 17, 29, 0.6)), url('${featuredImage?.fields?.file?.url || "/image.jpg"}'), #D9D9D9`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "flex-end",
+        padding: "0 180px 60px"
+      }}>
+        <div style={{ maxWidth: "1253px", display: "flex", flexDirection: "column", gap: "20px" }}>
+          {/* Publication Date */}
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "white" }}>
+            <span style={{ fontSize: "24px" }}>📅</span>
+            <span style={{ fontFamily: "Inter", fontWeight: 400, fontSize: "18px" }}>
+              {new Date(date || article.sys.createdAt).toLocaleDateString("en-US", { month: 'long', day: 'numeric', year: 'numeric' })}
+            </span>
           </div>
-       </section>
-
-       {/* Article Content Layout */}
-       <section style={{ padding: "50px 0" }}>
-          <div className="container" style={{ display: "flex", gap: "40px", alignItems: "flex-start", flexWrap: "wrap" }}>
-             
-             {/* Left Text Block */}
-             <div style={{ flex: "1 1 900px", display: "flex", flexDirection: "column", gap: "20px" }}>
-                <p style={{ fontSize: "16px", lineHeight: "26px", color: "#0B111D" }}>
-                   In the world of football, success is often measured in trophies, league titles, and big-name signings. But for many clubs, the real victory lies somewhere deeper — in the community they build, the memories they create, and the generations they inspire. Castlebar Celtic FC is one of those clubs.
-                </p>
-                <h2 style={{ fontSize: "40px", fontWeight: "700", color: "#0B111D", marginTop: "20px" }}>A Proud Tradition</h2>
-                <p style={{ fontSize: "16px", lineHeight: "26px", color: "#0B111D" }}>
-                   Founded with a passion for the beautiful game, Castlebar Celtic FC has grown into one of the most respected football institutions in the west of Ireland. Based in the vibrant town of Castlebar in County Mayo, the club has become a focal point for football lovers of all ages. Over the years, the green and white colors of Celtic have represented not just a team, but a tradition — a tradition of determination, sportsmanship, and pride in representing the local community.
-                </p>
-                
-                <h2 style={{ fontSize: "40px", fontWeight: "700", color: "#0B111D", marginTop: "20px" }}>Youth Focus</h2>
-                <p style={{ fontSize: "16px", lineHeight: "26px", color: "#0B111D" }}>
-                   One of the club’s greatest strengths is its commitment to youth development. From grassroots training sessions to competitive youth leagues, Castlebar Celtic FC has long believed that the future of football starts with young players. Many children in the region take their first steps in football wearing the club’s badge. Under the guidance of dedicated coaches and volunteers, these young athletes learn more than just how to pass, shoot, and defend — they learn teamwork, discipline, and confidence. For some, the dream is to go on and play at higher levels of Irish football. For all, the experience becomes a lifelong connection to the game.
-                </p>
-
-                <h2 style={{ fontSize: "40px", fontWeight: "700", color: "#0B111D", marginTop: "20px" }}>Moving Forward</h2>
-                <p style={{ fontSize: "16px", lineHeight: "26px", color: "#0B111D" }}>
-                   As the seasons change and new players step onto the pitch, one thing remains constant — the spirit of Castlebar Celtic FC. Whether you’re a player, a supporter, a volunteer, or simply someone who loves football, there’s always a place for you in the Celtic family. Because at Castlebar Celtic FC, football isn’t just played — it’s lived.
-                </p>
-                
-                {/* Images injected natively */}
-                <div style={{ display: "flex", gap: "20px", marginTop: "20px" }}>
-                   <div style={{ flex: "0 0 440px", height: "380px", borderRadius: "8px", backgroundColor: "#F9FAFB", backgroundImage: "url('/media__1775348197260.jpg')", backgroundSize: "cover", backgroundPosition: "center" }}></div>
-                   <div style={{ flex: "1 1 477px", height: "380px", borderRadius: "8px", backgroundColor: "#F9FAFB", backgroundImage: "url('/media__1775348198184.jpg')", backgroundSize: "cover", backgroundPosition: "center" }}></div>
-                </div>
-                <div style={{ display: "flex", gap: "20px", marginTop: "20px" }}>
-                   <div style={{ flex: "1 1 610px", height: "380px", borderRadius: "8px", backgroundColor: "#F9FAFB", backgroundImage: "url('/media__1775348198209.jpg')", backgroundSize: "cover", backgroundPosition: "center" }}></div>
-                   <div style={{ flex: "0 0 307px", height: "380px", borderRadius: "8px", backgroundColor: "#F9FAFB", backgroundImage: "url('/media__1775348198227.jpg')", backgroundSize: "cover", backgroundPosition: "center" }}></div>
-                </div>
-             </div>
-
-             {/* Right Sidebar */}
-             <div style={{ flex: "1 1 300px", maxWidth: "400px", display: "flex", flexDirection: "column", gap: "40px" }}>
-                <div style={{ border: "1px solid #D2D1D4", borderRadius: "8px", padding: "24px", display: "flex", flexDirection: "column", gap: "24px" }}>
-                   <h3 style={{ fontSize: "20px", fontWeight: "700", color: "#0B111D", textTransform: "uppercase", margin: 0 }}>TABLE OF CONTENTS</h3>
-                   <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "14px", fontSize: "18px", color: "var(--primary-color)" }}>
-                      <li>Introduction: The Heartbeat of the Community</li>
-                      <li>A Proud Tradition in Irish Football</li>
-                      <li>The History of Castlebar Celtic FC</li>
-                      <li>Developing the Next Generation</li>
-                      <li>Youth Academy and Grassroots Football</li>
-                      <li>A Club Built on Community</li>
-                      <li>Matchday Atmosphere and Supporters</li>
-                      <li>Facilities and Club Development</li>
-                      <li>Achievements and Milestones</li>
-                      <li>Looking Ahead: The Future of Castlebar Celtic FC</li>
-                      <li>Join the Journey</li>
-                   </ul>
-                </div>
-                
-                {/* Social Share Grouping exactly matching array */}
-                <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-                   <h4 style={{ fontSize: "20px", fontWeight: "700", color: "#0B111D", margin: 0 }}>Share on</h4>
-                   <div style={{ display: "flex", gap: "18px" }}>
-                      <div style={{ width: "36px", height: "36px", backgroundColor: "#1877F2", borderRadius: "4px", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold" }}>f</div>
-                      <div style={{ width: "36px", height: "36px", backgroundColor: "#0A66C2", borderRadius: "4px", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold" }}>in</div>
-                      <div style={{ width: "36px", height: "36px", background: "linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)", borderRadius: "4px", color: "white", display: "flex", alignItems: "center", justifyContent: "center" }}>IG</div>
-                      <div style={{ width: "36px", height: "36px", backgroundColor: "#0B111D", borderRadius: "4px", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold" }}>X</div>
-                      <div style={{ width: "36px", height: "36px", backgroundColor: "#25D366", borderRadius: "4px", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold" }}>W</div>
-                   </div>
-                </div>
-             </div>
+          
+          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            <h1 style={{ 
+              fontFamily: "Inter", fontWeight: 600, fontSize: "60px", lineHeight: "83px",
+              textTransform: "uppercase", color: "white", textShadow: "4px 10px 48px rgba(0,0,0,0.37)",
+              margin: 0
+            }}>
+              {title}
+            </h1>
+            <p style={{ fontFamily: "Inter", fontWeight: 400, fontSize: "26px", color: "white", margin: 0 }}>
+              {details}
+            </p>
           </div>
-       </section>
-
-       {/* Lotto Embedded Banner */}
-       <section style={{ backgroundColor: "var(--primary-color)", padding: "75px 0", marginTop: "50px" }}>
-        <div className="container" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-           <div style={{ display: "flex", alignItems: "center", gap: "19px" }}>
-              <div style={{ width: "64px", height: "64px", backgroundColor: "rgba(255, 255, 255, 0.2)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", border: "2.75px solid white" }}>🎟️</div>
-              <div>
-                 <h2 style={{ fontSize: "18px", fontWeight: "700", color: "white", margin: "0 0 -2px 0" }}>Join Our Weekly Lotto</h2>
-                 <p style={{ fontSize: "16px", color: "white", margin: 0 }}>Join our exciting fundraiser! Every punt counts.</p>
-              </div>
-           </div>
-           <Link href="/fundraise/lotto" style={{ backgroundColor: "white", color: "var(--primary-color)", padding: "10px 24px", borderRadius: "4px", fontSize: "16px", fontWeight: "600" }}>Enter Now →</Link>
         </div>
+      </section>
+
+      {/* 2. Article Content with Sidebar Table of Contents */}
+      <section style={{ padding: "50px 180px", display: "flex", justifyContent: "center", gap: "40px" }}>
+        {/* Left Column: Body Content */}
+        <div style={{ flex: 1, maxWidth: "937px", display: "flex", flexDirection: "column", gap: "20px" }}>
+          <div style={{ fontFamily: "Inter", fontSize: "16px", lineHeight: "26px", color: "#0B111D" }} className="rich-content">
+            {documentToReactComponents(content)}
+          </div>
+
+          {/* Dynamic Image Layout (Example logic for multiple images) */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "20px", marginTop: "30px" }}>
+             <div style={{ display: "flex", gap: "20px", height: "380px" }}>
+                <div style={{ flex: "0 0 440px", borderRadius: "8px", overflow: "hidden", position: "relative" }}>
+                   <Image src="/media__1775348197260.jpg" alt="Legacy Image 1" fill style={{ objectFit: "cover" }} />
+                </div>
+                <div style={{ flex: "1 1 477px", borderRadius: "8px", overflow: "hidden", position: "relative" }}>
+                   <Image src="/media__1775348198184.jpg" alt="Legacy Image 2" fill style={{ objectFit: "cover" }} />
+                </div>
+             </div>
+             <div style={{ display: "flex", gap: "20px", height: "380px" }}>
+                <div style={{ flex: "1 1 610px", borderRadius: "8px", overflow: "hidden", position: "relative" }}>
+                   <Image src="/media__1775348198209.jpg" alt="Legacy Image 3" fill style={{ objectFit: "cover" }} />
+                </div>
+                <div style={{ flex: "0 0 307px", borderRadius: "8px", overflow: "hidden", position: "relative" }}>
+                   <Image src="/media__1775348198227.jpg" alt="Legacy Image 4" fill style={{ objectFit: "cover" }} />
+                </div>
+             </div>
+          </div>
+        </div>
+
+        {/* Right Column: Sidebar */}
+        <aside style={{ width: "583px", display: "flex", flexDirection: "column", gap: "40px" }}>
+          {/* Table of Contents */}
+          <div style={{ boxSizing: "border-box", border: "1px solid #D2D1D4", borderRadius: "8px", padding: "24px", display: "flex", flexDirection: "column", gap: "24px" }}>
+            <h3 style={{ fontFamily: "Inter", fontWeight: 700, fontSize: "20px", color: "#0B111D", textTransform: "uppercase", margin: 0 }}>
+              TABLE OF CONTENTS
+            </h3>
+            <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "14px", fontSize: "18px", color: "#008236" }}>
+              <li>Introduction: The Heartbeat of the Community</li>
+              <li>A Proud Tradition in Irish Football</li>
+              <li>The History of Castlebar Celtic FC</li>
+              <li>Developing the Next Generation</li>
+              <li>Youth Academy and Grassroots Football</li>
+              <li>A Club Built on Community</li>
+              <li>Matchday Atmosphere and Supporters</li>
+              <li>Facilities and Club Development</li>
+              <li>Achievements and Milestones</li>
+              <li>Looking Ahead: The Future of Castlebar Celtic FC</li>
+              <li>Join the Journey</li>
+            </ul>
+          </div>
+
+          {/* Social Share Icons */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+             <h4 style={{ fontFamily: "Inter", fontWeight: 700, fontSize: "20px", color: "#0B111D", letterSpacing: "-0.02em", margin: 0 }}>Share on</h4>
+             <div style={{ display: "flex", gap: "18px" }}>
+                <div style={{ width: "36px", height: "36px", backgroundColor: "#1877F2", borderRadius: "4px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                   <span style={{ color: "white", fontWeight: "bold" }}>f</span>
+                </div>
+                <div style={{ width: "36px", height: "36px", backgroundColor: "#0A66C2", borderRadius: "4px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                   <span style={{ color: "white", fontWeight: "bold" }}>in</span>
+                </div>
+                <div style={{ width: "36px", height: "36px", background: "radial-gradient(92% 99% at 26% 107%, #FFDD55 0%, #FF543E 50%, #C837AB 100%)", borderRadius: "4px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                   <span style={{ color: "white", fontWeight: "bold" }}>IG</span>
+                </div>
+                <div style={{ width: "36px", height: "36px", backgroundColor: "#0B111D", borderRadius: "4px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                   <span style={{ color: "white", fontWeight: "bold" }}>X</span>
+                </div>
+                <div style={{ width: "36px", height: "36px", background: "linear-gradient(0deg, #1FAF38 -9900%, #60D669 100%)", borderRadius: "4px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                   <span style={{ color: "white", fontWeight: "bold" }}>W</span>
+                </div>
+             </div>
+          </div>
+        </aside>
+      </section>
+
+      {/* 3. Lotto / Community Banner exactly as requested */}
+      <section style={{ backgroundColor: "#008236", padding: "75px 180px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "19px" }}>
+           <div style={{ width: "64px", height: "64px", backgroundColor: "rgba(255, 255, 255, 0.2)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ fontSize: "24px" }}>🏆</span>
+           </div>
+           <div style={{ display: "flex", flexDirection: "column" }}>
+              <h5 style={{ fontFamily: "Inter", fontWeight: 700, fontSize: "18px", color: "white", margin: 0 }}>Join Our Community</h5>
+              <p style={{ fontFamily: "Inter", fontWeight: 400, fontSize: "16px", color: "white", margin: 0 }}>Join our exciting fundraiser! Every punt counts towards the club's future.</p>
+           </div>
+        </div>
+        <Link href="/join" style={{ backgroundColor: "white", color: "#008236", padding: "10px 24px", borderRadius: "4px", fontWeight: "600", fontSize: "16px", textDecoration: "none" }}>
+           Get Involved →
+        </Link>
       </section>
     </main>
   );
 }
+

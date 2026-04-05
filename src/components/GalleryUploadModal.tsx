@@ -18,41 +18,46 @@ export default function GalleryUploadModal({ isOpen, onClose }: { isOpen: boolea
     setMessage("");
 
     let successCount = 0;
+    let failCount = 0;
 
-    try {
-      for (let i = 0; i < files.length; i++) {
-        const formData = new FormData();
-        formData.append("files", files[i]);
-        formData.append("caption", caption);
-        formData.append("category", "EVENTS"); // Supporters only upload to EVENTS
+    for (let i = 0; i < files.length; i++) {
+        try {
+            setMessage(`Uploading photo ${i + 1} of ${files.length}...`);
+            const formData = new FormData();
+            formData.append("files", files[i]);
+            formData.append("caption", caption);
+            formData.append("category", "EVENTS");
 
-        const res = await fetch("/api/gallery/public-upload", {
-          method: "POST",
-          body: formData,
-        });
+            const res = await fetch("/api/gallery/public-upload", {
+                method: "POST",
+                body: formData,
+            });
 
-        if (res.ok) {
-          successCount++;
+            if (res.ok) {
+                successCount++;
+            } else {
+                failCount++;
+                console.error(`Upload failed for file ${files[i].name}`);
+            }
+            
+            // Small delay to prevent connection saturation on shared hosting
+            await new Promise(resolve => setTimeout(resolve, 500));
+        } catch (err) {
+            failCount++;
+            console.error("Upload error:", err);
         }
-      }
+    }
 
-      if (successCount === files.length) {
-        setMessage("Success! Your photos have been sent for moderation. Thank you for contributing to the club gallery!");
+    if (successCount === files.length) {
+        setMessage(`Success! All ${successCount} photos sent for moderation. Thank you!`);
         setFiles([]);
         setCaption("");
         setTimeout(onClose, 3000);
-      } else if (successCount > 0) {
-        setMessage(`Partial success. ${successCount} of ${files.length} photos were uploaded.`);
-        setFiles([]);
-        setTimeout(onClose, 4000);
-      } else {
-        setMessage("Upload failed. Please try again.");
-      }
-    } catch (err) {
-      setMessage("An error occurred during upload.");
-    } finally {
-      setUploading(false);
+    } else {
+        setMessage(`Upload complete. Success: ${successCount}, Failed: ${failCount}. ${failCount > 0 ? "Please try the failed ones again." : ""}`);
+        if (successCount > 0) setFiles([]);
     }
+    setUploading(false);
   };
 
   return (

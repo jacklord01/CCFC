@@ -14,3 +14,17 @@ export const previewClient = createClient({
   accessToken: previewToken,
   host: "preview.contentful.com",
 });
+
+export async function getArticleBySlug(slug: string) {
+  const entries = await client.getEntries({
+    content_type: "article",
+    "fields.slug": slug,
+    include: 2,
+  });
+
+  if (entries.items.length > 0) {
+    return entries.items[0];
+  }
+  return null;
+}
+
