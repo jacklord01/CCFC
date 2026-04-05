@@ -4,7 +4,14 @@ import { scrapeFinalWhistleMatches } from "@/lib/scraper";
 import { recordAuditAction } from "@/lib/audit";
 import { updateClubSetting } from "@/lib/settings";
 
-export async function POST() {
+export async function POST(req: Request) {
+  const authHeader = req.headers.get("Authorization");
+  const expectedToken = `Bearer ${process.env.CRON_SECRET}`;
+
+  if (!process.env.CRON_SECRET || authHeader !== expectedToken) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const matches = await scrapeFinalWhistleMatches();
     

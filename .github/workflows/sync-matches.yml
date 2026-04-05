@@ -1,0 +1,17 @@
+name: Sync Matches from FinalWhistle
+
+on:
+  schedule:
+    # Runs every 15 minutes
+    - cron: '*/15 * * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Scraper API
+        run: |
+          curl -X POST "https://master.d2hflnl38r5k7q.amplifyapp.com/api/matches/scrape" \
+          -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+          -H "Content-Type: application/json"

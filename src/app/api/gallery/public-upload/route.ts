@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
+import { uploadToS3 } from "@/lib/s3";
 
 // PUBLIC ENDPOINT - No Session Check
 export async function POST(req: Request) {
@@ -10,45 +9,46 @@ export async function POST(req: Request) {
     const files = formData.getAll("files") as File[];
     const caption = formData.get("caption") as string;
     const category = formData.get("category") as string || "EVENTS";
+    const uploaderName = formData.get("uploaderName") as string || "Supporter";
+    const uploaderEmail = formData.get("uploaderEmail") as string || null;
 
     if (!files || files.length === 0) {
       return NextResponse.json({ error: "No files" }, { status: 400 });
     }
 
-    // Restriction: supporters can only upload to EVENTS category publicly
-    if (category !== "EVENTS") {
-      return NextResponse.json({ error: "Public uploads restricted to Events" }, { status: 403 });
-    }
-
-    const uploadDir = path.join(process.cwd(), "public", "uploads", "public-gallery");
-    await mkdir(uploadDir, { recursive: true });
-
-    const uploadedUrls = [];
+    const uploadedRecords = [];
 
     for (const file of files) {
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
+      const arrayBuffer = await file.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
 
-      const filename = `public-${Date.now()}-${file.name.replace(/\s+/g, "-")}`;
-      const filePath = path.join(uploadDir, filename);
-      await writeFile(filePath, buffer);
+      // Upload to S3
+      const { url, key } = await uploadToS3(
+        buffer,
+        file.name,
+        file.type,
+        "gallery"
+      );
 
-      const fileUrl = `/uploads/public-gallery/${filename}`;
-      uploadedUrls.push(fileUrl);
-
-      await prisma.galleryItem.create({
+      // Save to Database
+      const record = await prisma.galleryItem.create({
         data: {
-          url: fileUrl,
+          url: url,
+          imageKey: key,
           caption: caption || null,
-          category: "EVENTS",
-          status: "PENDING"
+          category: category,
+          status: "PENDING", // Fans always upload to PENDING
+          uploaderName,
+          uploaderEmail
         }
       });
+      
+      uploadedRecords.push(record);
     }
 
-    return NextResponse.json({ success: true, urls: uploadedUrls });
+    return NextResponse.json({ success: true, count: uploadedRecords.length });
   } catch (error) {
     console.error("Public Gallery Upload Error:", error);
-    return NextResponse.json({ error: "Public upload failed" }, { status: 500 });
+    return NextResponse.json({ error: "Cloud upload failed" }, { status: 500 });
   }
 }

@@ -53,12 +53,17 @@ model Volunteer {
 }
 
 model GalleryItem {
-  id        String   @id @default(uuid())
-  url       String
-  caption   String?
-  category  String   // MATCHES, TEAMS, YOUTH, EVENTS
-  status    String   @default("APPROVED") // PENDING (for public uploads), APPROVED
-  createdAt DateTime @default(now())
+  id            String    @id @default(uuid())
+  url           String    // Public URL (S3)
+  imageKey      String    // S3 Storage Key (gallery/2026/...)
+  caption       String?
+  category      String    // MATCHES, TEAMS, YOUTH, EVENTS
+  status        String    @default("PENDING") // PENDING, APPROVED, REJECTED
+  uploaderEmail String?
+  uploaderName  String?
+  approvedAt    DateTime?
+  approvedBy    String?   // Admin Name or ID
+  createdAt     DateTime  @default(now())
 }
 
 model Order {

@@ -28,23 +28,23 @@ export async function scrapeFinalWhistleMatches() {
       return new Date(cleaned);
     };
 
-    // Selector for SportPress result cards (.sp-template-event-list contains matches)
-    $(".sp-event-list-item").each((_, element) => {
-      const dateText = $(element).find(".sp-event-date a").text().trim(); // e.g. "28 March 2026"
-      const title = $(element).find(".sp-event-title a").text().trim(); // e.g. "Castlebar Celtic v Westport United FC"
-      const resultsText = $(element).find(".sp-event-results").text().trim(); // e.g. "1 - 0"
+    // New Selector for FinalWhistle WordPress/SportsPress structure
+    $("#sp-tab-content-events article.sp-post-content").each((_, element) => {
+      const dateText = $(element).find(".event-date a").first().text().trim(); // e.g. "28 March 2026"
+      const title = $(element).find(".event-title a").text().trim(); // e.g. "Castlebar Celtic v Westport United FC"
+      const resultsText = $(element).find(".event-results a").text().trim(); // e.g. "1 - 0"
+      const competition = $(element).find(".event-league a").text().trim();
       
       if (!title || !dateText) return;
 
       const dateObj = cleanDate(dateText);
-      if (isNaN(dateObj.getTime())) return; // Skip invalid dates
+      if (isNaN(dateObj.getTime())) return;
 
-      const teams = title.split(" v ");
+      const teams = title.split(/ v | vs /i);
       if (teams.length < 2) return;
       const homeTeam = teams[0].trim();
       const awayTeam = teams[1].trim();
       
-      // Determine match type
       const isResult = resultsText.includes("-");
       const type = isResult ? "RESULT" : "UPCOMING";
 
@@ -53,32 +53,35 @@ export async function scrapeFinalWhistleMatches() {
         awayTeam,
         score: isResult ? resultsText : null,
         date: dateObj,
-        location: "Celtic Park",
+        location: competition.includes("Cup") ? "TBC (Cup)" : "Celtic Park",
         type
       });
     });
 
-    // Strategy for Tables (Alternative layout often used in sidebars)
-    $("table.sp-event-list tr").each((_, element) => {
-       const dateText = $(element).find("td.data-date a").text().trim();
-       const homeTeam = $(element).find("td.data-home a").text().trim();
-       const awayTeam = $(element).find("td.data-away a").text().trim();
-       const timeOrScore = $(element).find("td.data-time a").text().trim();
-       
-       if (!homeTeam || !awayTeam) return;
+    // Fallback for table-style layouts
+    if (matches.length === 0) {
+      $("table.sp-event-list tr").each((_, element) => {
+         const dateText = $(element).find("td.data-date a").text().trim();
+         const homeTeam = $(element).find("td.data-home a").text().trim();
+         const awayTeam = $(element).find("td.data-away a").text().trim();
+         const timeOrScore = $(element).find("td.data-time a").text().trim();
+         
+         if (!homeTeam || !awayTeam || !dateText) return;
 
-       const isResult = timeOrScore.includes("-");
-       
-       matches.push({
-         homeTeam,
-         awayTeam,
-         score: isResult ? timeOrScore : null,
-         date: new Date(dateText),
-         location: "TBC",
-         type: isResult ? "RESULT" : "UPCOMING"
-       });
-    });
+         const isResult = timeOrScore.includes("-");
+         
+         matches.push({
+           homeTeam,
+           awayTeam,
+           score: isResult ? timeOrScore : null,
+           date: new Date(dateText),
+           location: "TBC",
+           type: isResult ? "RESULT" : "UPCOMING"
+         });
+      });
+    }
 
+    console.log(`[SCRAPER] Successfully parsed ${matches.length} matches.`);
     return matches;
   } catch (error) {
     console.error("Scraper Error:", error);

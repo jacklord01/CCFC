@@ -134,7 +134,10 @@ export default function AdminGalleryPage() {
                   <div style={{ width: "100%", height: "180px", borderRadius: "4px", backgroundColor: "#e5e7eb", marginBottom: "12px", overflow: "hidden", position: "relative" }}>
                      <img src={item.url} alt="pending" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   </div>
-                  <p style={{ fontSize: "13px", fontWeight: "500", marginBottom: "12px" }}>{item.caption || "No caption"}</p>
+                  <p style={{ fontSize: "14px", fontWeight: "600", marginBottom: "4px" }}>{item.caption || "Untitled"}</p>
+                  <p style={{ fontSize: "12px", color: "#6b7280", marginBottom: "2px" }}>By: {item.uploaderName || "Unknown"}</p>
+                  {item.uploaderEmail && <p style={{ fontSize: "11px", color: "#9ca3af", marginBottom: "8px" }}>{item.uploaderEmail}</p>}
+                  <p style={{ fontSize: "10px", color: "#9ca3af", fontFamily: "monospace", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginBottom: "12px" }}>Key: {item.imageKey}</p>
                   <div style={{ display: "flex", gap: "10px" }}>
                      <button onClick={() => handleApprove(item.id)} style={{ flex: 1, backgroundColor: "#008236", color: "white", padding: "8px", borderRadius: "4px", border: "none", cursor: "pointer", fontSize: "14px", fontWeight: "600" }}>Approve</button>
                      <button onClick={() => handleDelete(item.id)} style={{ flex: 1, backgroundColor: "#ef4444", color: "white", padding: "8px", borderRadius: "4px", border: "none", cursor: "pointer", fontSize: "14px", fontWeight: "600" }}>Delete</button>

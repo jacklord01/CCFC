@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/authOptions";
 import { prisma } from "@/lib/prisma";
+import { uploadToS3 } from "@/lib/s3";
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
@@ -19,30 +18,30 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
 
-    // Ensure the uploads directory exists
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-    await mkdir(uploadDir, { recursive: true });
-
-    const filename = `${Date.now()}-${file.name.replace(/\s+/g, "-")}`;
-    const filePath = path.join(uploadDir, filename);
-    await writeFile(filePath, buffer);
-
-    const fileUrl = `/uploads/${filename}`;
+    // Upload to S3
+    const { url, key } = await uploadToS3(
+      buffer,
+      file.name,
+      file.type,
+      "admin-media"
+    );
 
     // Update Media table
     const media = await prisma.media.create({
       data: {
-        url: fileUrl,
+        url: url,
         filename: file.name,
         fileSize: file.size,
         mimeType: file.type,
+        // We could also store the key if we add it to the Media model, 
+        // but for now, we'll store the public URL as before.
       }
     });
 
-    return NextResponse.json({ success: true, url: fileUrl, id: media.id });
+    return NextResponse.json({ success: true, url: url, id: media.id });
   } catch (error) {
     console.error("Error uploading file:", error);
     return NextResponse.json({ error: "Upload failed" }, { status: 500 });

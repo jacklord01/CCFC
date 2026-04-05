@@ -11,7 +11,7 @@ export async function GET(req: Request) {
   const showUnapproved = searchParams.get("unapproved") === "true";
 
   const where: any = {};
-  if (category) where.category = category;
+  if (category && category !== "ALL") where.category = category;
   
   // Public only sees approved. Admin can see both.
   if (!session || !showUnapproved) {
@@ -26,7 +26,7 @@ export async function GET(req: Request) {
   return NextResponse.json(items);
 }
 
-// POST - Authenticated (Admin Upload)
+// POST - Authenticated (Admin Upload - though meestal public API handles this now)
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -35,16 +35,19 @@ export async function POST(req: Request) {
   const galleryItem = await prisma.galleryItem.create({
     data: {
       url: data.url,
+      imageKey: data.imageKey || "",
       caption: data.caption || "",
       category: data.category,
-      status: "APPROVED" // Admin uploads are auto-approved
+      status: "APPROVED", // Admin uploads are auto-approved
+      approvedBy: session.user?.name || "Admin",
+      approvedAt: new Date()
     }
   });
 
   return NextResponse.json(galleryItem);
 }
 
-// PATCH - Authenticated (Moderation Approve)
+// PATCH - Authenticated (Moderation Approve/Reject)
 export async function PATCH(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -54,7 +57,11 @@ export async function PATCH(req: Request) {
 
   const galleryItem = await prisma.galleryItem.update({
     where: { id: data.id },
-    data: { status: data.status || "APPROVED" }
+    data: { 
+      status: data.status || "APPROVED",
+      approvedAt: data.status === "APPROVED" ? new Date() : null,
+      approvedBy: data.status === "APPROVED" ? (session.user?.name || "Admin") : null
+    }
   });
 
   return NextResponse.json(galleryItem);
