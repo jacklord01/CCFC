@@ -1,6 +1,6 @@
 import { prisma } from "./prisma";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/authOptions";
 
 export async function recordAuditAction(action: string, targetType: string, targetId?: string, details?: string) {
   try {

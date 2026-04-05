@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/authOptions";
 import AdminSidebar from "@/components/AdminSidebar";
 import { Providers } from "@/components/Providers";
 import SecurityEnforcer from "@/components/SecurityEnforcer";

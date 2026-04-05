@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getClubSettings, updateClubSetting, ClubSettings } from "@/lib/settings";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/authOptions";
 
 export async function GET() {
   const settings = await getClubSettings();

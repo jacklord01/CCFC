@@ -1,18 +1,18 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/authOptions";
 import { prisma } from "@/lib/prisma";
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session || (session.user as any).role !== "DEV_ADMIN") {
     return NextResponse.json({ error: "Unauthorized. Super Admin access only." }, { status: 403 });
   }
 
-  const { id } = params;
+  const { id } = await context.params;
 
   try {
     await prisma.user.delete({ where: { id } });
@@ -37,14 +37,14 @@ export async function DELETE(
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session || (session.user as any).role !== "DEV_ADMIN") {
     return NextResponse.json({ error: "Unauthorized. Super Admin access only." }, { status: 403 });
   }
 
-  const { id } = params;
+  const { id } = await context.params;
   const { isActive, twoFactorEnabled } = await req.json();
 
   try {
