@@ -4,15 +4,22 @@ import TeamsClient from "@/components/TeamsClient";
 export const dynamic = "force-dynamic";
 
 export default async function MatchesPage() {
-  // Fetch initial 6 upcoming matches on server
-  const initialMatches = await prisma.match.findMany({
-    where: { type: "UPCOMING" },
-    orderBy: { date: "asc" },
-    take: 6
-  });
+  let initialMatches: any[] = [];
+  let initialHasMore = false;
 
-  const total = await prisma.match.count({ where: { type: "UPCOMING" } });
-  const initialHasMore = initialMatches.length < total;
+  try {
+    // Fetch initial 6 upcoming matches on server
+    initialMatches = await prisma.match.findMany({
+      where: { type: "UPCOMING" },
+      orderBy: { date: "asc" },
+      take: 6
+    });
+
+    const total = await prisma.match.count({ where: { type: "UPCOMING" } });
+    initialHasMore = initialMatches.length < total;
+  } catch (err) {
+    console.error("Database connection failed for Teams Page", err);
+  }
 
   return (
     <main style={{ backgroundColor: "#FFFFFF", maxWidth: "1920px", margin: "0 auto" }}>

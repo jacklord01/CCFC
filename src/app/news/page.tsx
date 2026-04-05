@@ -15,12 +15,17 @@ export default async function NewsPage() {
   // Fetch from Contentful
   const contentfulArticles = await getArticles();
   
-  // Fetch from Local DB
-  const localArticles = await prisma.article.findMany({
-    where: { isPublished: true },
-    orderBy: { publishedAt: "desc" },
-    take: 6
-  });
+  let localArticles: any[] = [];
+  try {
+    // Fetch from Local DB
+    localArticles = await prisma.article.findMany({
+      where: { isPublished: true },
+      orderBy: { publishedAt: "desc" },
+      take: 6
+    });
+  } catch (err) {
+    console.error("Database connection failed for News Page", err);
+  }
 
   // Transform local articles to match Contentful structure for the UI
   const transformedLocal = localArticles.map(art => ({
