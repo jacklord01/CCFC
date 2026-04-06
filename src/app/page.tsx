@@ -1,6 +1,21 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getClubSettings } from "@/lib/settings";
+import { getArticles } from "@/lib/contentful";
+import { prisma } from "@/lib/prisma";
+
+function toTimestamp(value: any, fallback: any) {
+  if (typeof value === "string" || typeof value === "number" || value instanceof Date) {
+    try {
+      const d = new Date(value);
+      return isNaN(d.getTime()) ? new Date(fallback || 0).getTime() : d.getTime();
+    } catch (e) {
+      return new Date(fallback || 0).getTime();
+    }
+  }
+  return new Date(fallback || 0).getTime();
+}
+
 
 async function getMatches() {
   try {
@@ -15,6 +30,42 @@ async function getMatches() {
 export default async function Home() {
   const settings = await getClubSettings();
   const matches = await getMatches();
+
+  let contentfulArticles: any[] = [];
+  try {
+    contentfulArticles = await getArticles();
+  } catch (err) {}
+  
+  let localArticles: any[] = [];
+  try {
+    localArticles = await prisma.article.findMany({
+      where: { isPublished: true },
+      orderBy: { publishedAt: "desc" },
+      take: 3
+    });
+  } catch (err) {}
+
+  const transformedLocal = (localArticles || []).map(art => ({
+    title: art.title || "Untitled",
+    details: art.excerpt || (art.content ? art.content.slice(0, 150) : ""),
+    date: art.publishedAt || art.createdAt || new Date(),
+    slug: art.slug || `article-${art.id}`,
+    category: art.category || "Update",
+    imageUrl: art.imageUrl || null
+  }));
+
+  const transformedContentful = (contentfulArticles || []).map((art: any) => ({
+    title: art?.fields?.title || "Untitled",
+    details: art?.fields?.details || "",
+    date: art?.fields?.date || art?.sys?.createdAt || new Date(),
+    slug: art?.fields?.slug || `article-${art?.sys?.id}`,
+    category: art?.fields?.category || "Update",
+    imageUrl: art?.fields?.featuredImage?.fields?.file?.url || null
+  }));
+
+  const news = [...transformedLocal, ...transformedContentful].sort((a, b) => {
+    return toTimestamp(b.date, 0) - toTimestamp(a.date, 0);
+  }).slice(0, 3);
 
   const results = matches.filter((m: any) => m.type === "RESULT").slice(0, 3);
   const upcoming = matches.filter((m: any) => m.type === "UPCOMING").slice(0, 3);
@@ -47,19 +98,24 @@ export default async function Home() {
       <section className="section section-white">
         <div className="container">
           <h2 className="section-title">Latest Club News</h2>
-          <div className="grid-cols-3">
-             {/* We will map dynamic News here via Contentful API in the next step */}
-             {[1, 2, 3].map((i) => (
-               <div key={i} className="card card-flush">
-                 <div style={{ height: "200px", backgroundColor: "#eee", borderRadius: "12px 12px 0 0" }}></div>
-                 <div style={{ padding: "1.5rem" }}>
-                   <span className="badge">Featured</span>
-                   <h3 style={{ marginTop: "1rem" }}>Match Report: Celtic Clinch Crucial Win</h3>
-                   <p className="text-muted">Read our full match overview from Saturday's game at Celtic Park.</p>
-                 </div>
-               </div>
-             ))}
-          </div>
+          {news.length > 0 ? (
+            <div className="grid-cols-3">
+              {news.map((item, i) => (
+                <div key={i} className="card card-flush">
+                  <div style={{ height: "200px", backgroundColor: "#eee", borderRadius: "12px 12px 0 0", backgroundImage: item.imageUrl ? `url(${item.imageUrl})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
+                  <div style={{ padding: "1.5rem" }}>
+                    <span className="badge">{item.category}</span>
+                    <h3 style={{ marginTop: "1rem" }}><Link href={`/news/${item.slug}`} style={{ color: "inherit", textDecoration: "none" }}>{item.title}</Link></h3>
+                    <p className="text-muted">{item.details.length > 100 ? `${item.details.substring(0, 100)}...` : item.details}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ padding: "3rem", textAlign: "center", backgroundColor: "#F9FAFB", borderRadius: "12px", border: "1px dashed #D1D5DB" }}>
+              <p style={{ color: "#6B7280", fontSize: "1.1rem" }}>No news updates available at this time.</p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -79,7 +135,9 @@ export default async function Home() {
                     <div style={{ flex: 1, fontWeight: "bold" }}>{m.awayTeam}</div>
                   </div>
                 )) : (
-                  <p style={{ opacity: 0.6 }}>No recent results listed.</p>
+                  <div style={{ padding: "2rem", textAlign: "center", backgroundColor: "rgba(255,255,255,0.02)", borderRadius: "12px", border: "1px dashed rgba(255,255,255,0.1)" }}>
+                    <p style={{ opacity: 0.6 }}>No recent results to display.</p>
+                  </div>
                 )}
               </div>
             </div>
@@ -97,7 +155,9 @@ export default async function Home() {
                     </div>
                   </div>
                 )) : (
-                  <p style={{ opacity: 0.6 }}>Check back soon for upcoming fixtures.</p>
+                  <div style={{ padding: "2rem", textAlign: "center", backgroundColor: "rgba(255,255,255,0.02)", borderRadius: "12px", border: "1px dashed rgba(255,255,255,0.1)" }}>
+                    <p style={{ opacity: 0.6 }}>No upcoming fixtures scheduled right now.</p>
+                  </div>
                 )}
               </div>
             </div>

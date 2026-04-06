@@ -50,8 +50,22 @@ export default async function NewsPage() {
     }
   }));
 
+  const transformedContentful = (contentfulArticles || []).map(art => ({
+    sys: { id: art?.sys?.id, createdAt: art?.sys?.createdAt || new Date() },
+    fields: {
+      title: art?.fields?.title || "Untitled",
+      details: art?.fields?.details || "",
+      date: art?.fields?.date || art?.sys?.createdAt || new Date(),
+      slug: art?.fields?.slug || `article-${art?.sys?.id}`,
+      category: art?.fields?.category || "Update",
+      featuredImage: art?.fields?.featuredImage?.fields?.file?.url 
+        ? { fields: { file: { url: art.fields.featuredImage.fields.file.url } } } 
+        : null
+    }
+  }));
+
   // Combine and sort by date safely
-  const allArticles = [...transformedLocal, ...(contentfulArticles || [])].sort((a, b) => {
+  const allArticles = [...transformedLocal, ...transformedContentful].sort((a, b) => {
     const dateA = toTimestamp(a?.fields?.date, a?.sys?.createdAt);
     const dateB = toTimestamp(b?.fields?.date, b?.sys?.createdAt);
     return dateB - dateA;
