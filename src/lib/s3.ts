@@ -1,10 +1,19 @@
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
+const region = process.env.S3_REGION || "eu-west-1";
+const accessKeyId = process.env.S3_ACCESS_KEY_ID;
+const secretAccessKey = process.env.S3_SECRET_ACCESS_KEY;
+const bucketName = process.env.S3_BUCKET_NAME;
+
+if (!accessKeyId || !secretAccessKey || !bucketName) {
+  throw new Error("Missing S3 credentials in environment variables (S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY, S3_BUCKET_NAME).");
+}
+
 const s3Client = new S3Client({
-  region: process.env.S3_REGION || "eu-west-1",
+  region,
   credentials: {
-    accessKeyId: process.env.S3_ACCESS_KEY || "",
-    secretAccessKey: process.env.S3_SECRET_KEY || "",
+    accessKeyId,
+    secretAccessKey,
   },
 });
 
@@ -21,7 +30,6 @@ export async function uploadToS3(
   
   // Format: gallery/2026/04/1712345678-filename.jpg
   const key = `${folder}/${year}/${month}/${uniqueId}-${filename.replace(/\s+/g, "-")}`;
-  const bucketName = process.env.S3_BUCKET_NAME || "";
 
   await s3Client.send(
     new PutObjectCommand({
@@ -33,7 +41,7 @@ export async function uploadToS3(
   );
 
   // Return both the public URL and the Key for DB storage
-  const url = `https://${bucketName}.s3.${process.env.S3_REGION || "eu-west-1"}.amazonaws.com/${key}`;
+  const url = `https://${bucketName}.s3.${region}.amazonaws.com/${key}`;
   
   return { url, key };
 }
