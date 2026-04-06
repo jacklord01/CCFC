@@ -45,7 +45,7 @@ export default function NewsClient({ initialArticles }: NewsClientProps) {
       <div style={{ flex: "1 1 1200px" }}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))", gap: "32px", marginBottom: "60px" }}>
            {mainArticles.map((article: any) => {
-             const { title, details, date, featuredImage, slug, category } = article.fields;
+             const { title, excerpt, publishedDate, featuredImage, slug, category } = article.fields;
              const imageUrl = featuredImage?.fields?.file?.url || "/football_stadium_1775346359306.png";
              
              return (
@@ -69,11 +69,11 @@ export default function NewsClient({ initialArticles }: NewsClientProps) {
                     </div>
                     <div style={{ padding: "24px", flex: 1, display: "flex", flexDirection: "column", gap: "10px" }}>
                        <div style={{ color: "#6B7280", fontSize: "14px", display: "flex", alignItems: "center", gap: "6px" }}>
-                         <span>📅</span> {new Date(date || article.sys.createdAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                         <span>📅</span> {new Date(publishedDate || article.sys.createdAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
                        </div>
                        <h3 style={{ fontSize: "20px", fontWeight: 800, color: "#0B111D", margin: 0, lineHeight: "1.3" }}>{title}</h3>
                        <p style={{ color: "#6B7280", fontSize: "15px", margin: 0, lineHeight: "1.6", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-                         {details}
+                         {excerpt}
                        </p>
                        <div style={{ marginTop: "auto", color: "#008236", fontWeight: "700", fontSize: "16px", display: "flex", alignItems: "center", gap: "4px" }}>
                          Read More <span style={{ fontSize: "18px" }}>→</span>
@@ -113,7 +113,7 @@ export default function NewsClient({ initialArticles }: NewsClientProps) {
                  <span style={{ fontSize: "20px", fontWeight: 900, color: "#D1D5DB" }}>{idx + 1}.</span>
                  <div>
                     <h4 style={{ fontSize: "15px", fontWeight: 700, color: "#374151", margin: "0 0 4px 0", lineHeight: "1.4" }}>{article.fields.title}</h4>
-                    <span style={{ fontSize: "12px", color: "#9CA3AF" }}>{new Date(article.fields.date || article.sys.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
+                    <span style={{ fontSize: "12px", color: "#9CA3AF" }}>{new Date(article.fields.publishedDate || article.sys.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
                  </div>
               </Link>
             ))}

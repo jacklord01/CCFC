@@ -36,36 +36,14 @@ export default async function Home() {
     contentfulArticles = await getArticles();
   } catch (err) {}
   
-  let localArticles: any[] = [];
-  try {
-    localArticles = await prisma.article.findMany({
-      where: { isPublished: true },
-      orderBy: { publishedAt: "desc" },
-      take: 3
-    });
-  } catch (err) {}
-
-  const transformedLocal = (localArticles || []).map(art => ({
-    title: art.title || "Untitled",
-    details: art.excerpt || (art.content ? art.content.slice(0, 150) : ""),
-    date: art.publishedAt || art.createdAt || new Date(),
-    slug: art.slug || `article-${art.id}`,
-    category: art.category || "Update",
-    imageUrl: art.imageUrl || null
-  }));
-
-  const transformedContentful = (contentfulArticles || []).map((art: any) => ({
+  const news = (contentfulArticles || []).map((art: any) => ({
     title: art?.fields?.title || "Untitled",
-    details: art?.fields?.details || "",
-    date: art?.fields?.date || art?.sys?.createdAt || new Date(),
+    details: art?.fields?.excerpt || "",
+    date: art?.fields?.publishedDate || art?.sys?.createdAt || new Date(),
     slug: art?.fields?.slug || `article-${art?.sys?.id}`,
-    category: art?.fields?.category || "Update",
+    category: art?.fields?.category || "Club News",
     imageUrl: art?.fields?.featuredImage?.fields?.file?.url || null
-  }));
-
-  const news = [...transformedLocal, ...transformedContentful].sort((a, b) => {
-    return toTimestamp(b.date, 0) - toTimestamp(a.date, 0);
-  }).slice(0, 3);
+  })).slice(0, 3);
 
   const results = matches.filter((m: any) => m.type === "RESULT").slice(0, 3);
   const upcoming = matches.filter((m: any) => m.type === "UPCOMING").slice(0, 3);

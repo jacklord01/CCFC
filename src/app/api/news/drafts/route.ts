@@ -17,7 +17,7 @@ export async function GET() {
     });
 
     const entries = await client.getEntries({
-      content_type: "news", // Target the news content type
+      content_type: "newsPost", // Target the unified newsPost content type
       order: ["-sys.updatedAt"],
     });
 
@@ -25,7 +25,7 @@ export async function GET() {
       id: item.sys.id,
       title: item.fields.title,
       status: item.sys.publishedAt ? "PUBLISHED" : "DRAFT",
-      excerpt: item.fields.excerpt || (item.fields.content ? item.fields.content.substring(0, 150) + "..." : ""),
+      excerpt: item.fields.excerpt || "", // According to new model validation
       updatedAt: item.sys.updatedAt,
       slug: item.fields.slug || item.sys.id
     }));
