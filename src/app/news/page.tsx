@@ -11,20 +11,6 @@ export default async function NewsPage() {
     console.error("Contentful fetch failed for News Page", err);
   }
 
-  const transformedContentful = (contentfulArticles || []).map(art => ({
-    sys: { id: art?.sys?.id || Math.random().toString(), createdAt: art?.sys?.createdAt || new Date() },
-    fields: {
-      title: art?.fields?.title || "Untitled",
-      excerpt: art?.fields?.excerpt || "",
-      publishedDate: art?.fields?.publishedDate || art?.sys?.createdAt || new Date(),
-      slug: art?.fields?.slug || `article-${art?.sys?.id}`,
-      category: art?.fields?.category || "Club News",
-      featuredImage: art?.fields?.featuredImage?.fields?.file?.url 
-        ? { fields: { file: { url: art.fields.featuredImage.fields.file.url } } } 
-        : null
-    }
-  }));
-  
   return (
     <main style={{ backgroundColor: "#FFFFFF", maxWidth: "1920px", margin: "0 auto" }}>
        <section style={{ 
@@ -48,7 +34,7 @@ export default async function NewsPage() {
           </p>
        </section>
 
-       <NewsClient initialArticles={transformedContentful} />
+       <NewsClient initialArticles={contentfulArticles} />
     </main>
   );
 }

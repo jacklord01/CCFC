@@ -36,14 +36,7 @@ export default async function Home() {
     contentfulArticles = await getArticles();
   } catch (err) {}
   
-  const news = (contentfulArticles || []).map((art: any) => ({
-    title: art?.fields?.title || "Untitled",
-    details: art?.fields?.excerpt || "",
-    date: art?.fields?.publishedDate || art?.sys?.createdAt || new Date(),
-    slug: art?.fields?.slug || `article-${art?.sys?.id}`,
-    category: art?.fields?.category || "Club News",
-    imageUrl: art?.fields?.featuredImage?.fields?.file?.url || null
-  })).slice(0, 3);
+  const news = contentfulArticles.slice(0, 3);
 
   const results = matches.filter((m: any) => m.type === "RESULT").slice(0, 3);
   const upcoming = matches.filter((m: any) => m.type === "UPCOMING").slice(0, 3);
@@ -80,11 +73,11 @@ export default async function Home() {
             <div className="grid-cols-3">
               {news.map((item, i) => (
                 <div key={i} className="card card-flush">
-                  <div style={{ height: "200px", backgroundColor: "#eee", borderRadius: "12px 12px 0 0", backgroundImage: item.imageUrl ? `url(${item.imageUrl})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
+                  <div style={{ height: "200px", backgroundColor: "#eee", borderRadius: "12px 12px 0 0", backgroundImage: item.featuredImage ? `url(${item.featuredImage})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
                   <div style={{ padding: "1.5rem" }}>
                     <span className="badge">{item.category}</span>
                     <h3 style={{ marginTop: "1rem" }}><Link href={`/news/${item.slug}`} style={{ color: "inherit", textDecoration: "none" }}>{item.title}</Link></h3>
-                    <p className="text-muted">{item.details.length > 100 ? `${item.details.substring(0, 100)}...` : item.details}</p>
+                    <p className="text-muted">{item.excerpt.length > 100 ? `${item.excerpt.substring(0, 100)}...` : item.excerpt}</p>
                   </div>
                 </div>
               ))}

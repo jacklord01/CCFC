@@ -45,11 +45,11 @@ export default function NewsClient({ initialArticles }: NewsClientProps) {
       <div style={{ flex: "1 1 1200px" }}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))", gap: "32px", marginBottom: "60px" }}>
            {mainArticles.map((article: any) => {
-             const { title, excerpt, publishedDate, featuredImage, slug, category } = article.fields;
-             const imageUrl = featuredImage?.fields?.file?.url || "/football_stadium_1775346359306.png";
+             const { id, title, excerpt, publishedDate, featuredImage, slug, category } = article;
+             const imageUrl = featuredImage || "/football_stadium_1775346359306.png";
              
              return (
-               <Link key={article.sys.id} href={`/news/${slug}`} style={{ textDecoration: "none" }}>
+               <Link key={id} href={`/news/${slug}`} style={{ textDecoration: "none" }}>
                  <div className="card card-flush" style={{ height: "100%", display: "flex", flexDirection: "column", transition: "transform 0.2s ease" }}>
                     <div style={{ height: "240px", position: "relative", overflow: "hidden", borderRadius: "12px 12px 0 0" }}>
                        <Image 
@@ -64,12 +64,12 @@ export default function NewsClient({ initialArticles }: NewsClientProps) {
                          padding: "6px 14px", fontSize: "12px", fontWeight: "800", 
                          borderRadius: "6px", textTransform: "uppercase" 
                        }}>
-                         {category || "Update"}
+                         {category}
                        </span>
                     </div>
                     <div style={{ padding: "24px", flex: 1, display: "flex", flexDirection: "column", gap: "10px" }}>
                        <div style={{ color: "#6B7280", fontSize: "14px", display: "flex", alignItems: "center", gap: "6px" }}>
-                         <span>📅</span> {new Date(publishedDate || article.sys.createdAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                         <span>📅</span> {new Date(publishedDate).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
                        </div>
                        <h3 style={{ fontSize: "20px", fontWeight: 800, color: "#0B111D", margin: 0, lineHeight: "1.3" }}>{title}</h3>
                        <p style={{ color: "#6B7280", fontSize: "15px", margin: 0, lineHeight: "1.6", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
@@ -109,11 +109,11 @@ export default function NewsClient({ initialArticles }: NewsClientProps) {
          </h3>
          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
             {sidebarArticles.map((article: any, idx) => (
-              <Link key={article.sys.id} href={`/news/${article.fields.slug}`} style={{ textDecoration: "none", display: "flex", gap: "16px" }}>
+              <Link key={article.id} href={`/news/${article.slug}`} style={{ textDecoration: "none", display: "flex", gap: "16px" }}>
                  <span style={{ fontSize: "20px", fontWeight: 900, color: "#D1D5DB" }}>{idx + 1}.</span>
                  <div>
-                    <h4 style={{ fontSize: "15px", fontWeight: 700, color: "#374151", margin: "0 0 4px 0", lineHeight: "1.4" }}>{article.fields.title}</h4>
-                    <span style={{ fontSize: "12px", color: "#9CA3AF" }}>{new Date(article.fields.publishedDate || article.sys.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
+                    <h4 style={{ fontSize: "15px", fontWeight: 700, color: "#374151", margin: "0 0 4px 0", lineHeight: "1.4" }}>{article.title}</h4>
+                    <span style={{ fontSize: "12px", color: "#9CA3AF" }}>{new Date(article.publishedDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
                  </div>
               </Link>
             ))}
