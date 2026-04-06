@@ -6,14 +6,24 @@ export const dynamic = "force-dynamic";
 
 function toTimestamp(value: any, fallback: any) {
   if (typeof value === "string" || typeof value === "number" || value instanceof Date) {
-    return new Date(value).getTime();
+    try {
+      const d = new Date(value);
+      return isNaN(d.getTime()) ? new Date(fallback || 0).getTime() : d.getTime();
+    } catch (e) {
+      return new Date(fallback || 0).getTime();
+    }
   }
-  return new Date(fallback).getTime();
+  return new Date(fallback || 0).getTime();
 }
 
 export default async function NewsPage() {
   // Fetch from Contentful
-  const contentfulArticles = await getArticles();
+  let contentfulArticles: any[] = [];
+  try {
+    contentfulArticles = await getArticles();
+  } catch (err) {
+    console.error("Contentful fetch failed for News Page", err);
+  }
   
   let localArticles: any[] = [];
   try {
@@ -28,22 +38,22 @@ export default async function NewsPage() {
   }
 
   // Transform local articles to match Contentful structure for the UI
-  const transformedLocal = localArticles.map(art => ({
-    sys: { id: art.id, createdAt: art.createdAt },
+  const transformedLocal = (localArticles || []).map(art => ({
+    sys: { id: art.id, createdAt: art.createdAt || new Date() },
     fields: {
-      title: art.title,
-      details: art.excerpt || art.content.slice(0, 150),
-      date: art.publishedAt || art.createdAt,
-      slug: art.slug,
-      category: art.category,
+      title: art.title || "Untitled Report",
+      details: art.excerpt || (art.content ? art.content.slice(0, 150) : "No details available."),
+      date: art.publishedAt || art.createdAt || new Date(),
+      slug: art.slug || `article-${art.id}`,
+      category: art.category || "Update",
       featuredImage: art.imageUrl ? { fields: { file: { url: art.imageUrl } } } : null
     }
   }));
 
   // Combine and sort by date safely
-  const allArticles = [...transformedLocal, ...contentfulArticles].sort((a, b) => {
-    const dateA = toTimestamp(a.fields?.date, a.sys.createdAt);
-    const dateB = toTimestamp(b.fields?.date, b.sys.createdAt);
+  const allArticles = [...transformedLocal, ...(contentfulArticles || [])].sort((a, b) => {
+    const dateA = toTimestamp(a?.fields?.date, a?.sys?.createdAt);
+    const dateB = toTimestamp(b?.fields?.date, b?.sys?.createdAt);
     return dateB - dateA;
   });
   
