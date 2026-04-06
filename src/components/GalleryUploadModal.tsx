@@ -33,11 +33,18 @@ export default function GalleryUploadModal({ isOpen, onClose }: { isOpen: boolea
                 body: formData,
             });
 
+            const result = await res.json().catch(() => null);
+
             if (res.ok) {
                 successCount++;
             } else {
                 failCount++;
-                console.error(`Upload failed for file ${files[i].name}`);
+                const errorStr = result?.details || result?.error || "Unknown backend error";
+                console.error("Upload failed", { file: files[i].name, status: res.status, result });
+                setMessage(`Upload failed for ${files[i].name}: ${errorStr}`);
+                
+                // Pause so the user can read the error before the loop continues or exits
+                await new Promise(resolve => setTimeout(resolve, 3000));
             }
             
             // Small delay to prevent connection saturation on shared hosting
