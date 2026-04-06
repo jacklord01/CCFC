@@ -8,6 +8,13 @@ export default withAuth(
     },
     callbacks: {
       authorized: ({ req, token }) => {
+        console.log("[MIDDLEWARE AUTH]", {
+          path: req.nextUrl.pathname,
+          hasToken: !!token,
+          tokenSub: token?.sub,
+          tokenEmail: token?.email,
+        });
+
         if (
           req.nextUrl.pathname.startsWith('/admin/login') ||
           req.nextUrl.pathname.startsWith('/admin/setup-security')

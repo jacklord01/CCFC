@@ -1,8 +1,12 @@
 import { prisma } from "@/lib/prisma";
+import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
 export default async function DiagPage() {
+  if (process.env.NODE_ENV === "production" && process.env.ENABLE_DIAG !== "true") {
+    notFound();
+  }
   
   const envCheck = {
     DATABASE_URL: !!process.env.DATABASE_URL,
