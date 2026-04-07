@@ -22,7 +22,10 @@ import { useSession } from "next-auth/react";
 
 export default function AdminSidebar({ sumupLink }: { sumupLink?: string }) {
   const pathname = usePathname();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  
+  if (status !== "authenticated") return null;
+
   const email = session?.user?.email || "admin@castlebarceltic.ie";
 
   const navItems = [
