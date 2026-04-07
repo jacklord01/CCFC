@@ -21,7 +21,7 @@ export default async function AdminLayout({
     <Providers>
       <SecurityEnforcer>
         <div style={{ display: "flex", minHeight: "100vh", backgroundColor: "#f3f4f6", maxWidth: "1920px", margin: "0 auto", boxShadow: "0 0 100px rgba(0,0,0,0.1)" }}>
-          {session && <AdminSidebar email={session.user?.email || ""} sumupLink={settings.SUMUP_LINK} />}
+          {session && <AdminSidebar sumupLink={settings.SUMUP_LINK} />}
           
           <main style={{ flex: 1, padding: "60px", overflowY: "auto", backgroundColor: "white" }}>
             {children}

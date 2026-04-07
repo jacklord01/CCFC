@@ -11,6 +11,10 @@ export default function Navbar({ settings }: { settings: ClubSettings }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const pathname = usePathname();
 
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
+
   const isActive = (path: string) => pathname === path;
   const isFundraiseActive = pathname?.startsWith("/fundraise");
 

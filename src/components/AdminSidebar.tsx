@@ -18,8 +18,12 @@ import {
   ExternalLink
 } from "lucide-react";
 
-export default function AdminSidebar({ email, sumupLink }: { email: string; sumupLink?: string }) {
+import { useSession } from "next-auth/react";
+
+export default function AdminSidebar({ sumupLink }: { sumupLink?: string }) {
   const pathname = usePathname();
+  const { data: session } = useSession();
+  const email = session?.user?.email || "admin@castlebarceltic.ie";
 
   const navItems = [
     { href: "/admin", icon: <LayoutDashboard size={18} />, label: "Dashboard", category: "General" },

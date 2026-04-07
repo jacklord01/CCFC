@@ -3,6 +3,7 @@ import "./globals.css";
 import Script from "next/script";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import HideOnAdmin from "@/components/HideOnAdmin";
 
 export const metadata: Metadata = {
   title: "Castlebar Celtic FC",
@@ -46,7 +47,9 @@ export default async function RootLayout({
       <body>
         <Navbar settings={settings} />
         <main style={{ minHeight: "80vh" }}>{children}</main>
-        <Footer settings={settings} />
+        <HideOnAdmin>
+          <Footer settings={settings} />
+        </HideOnAdmin>
       </body>
     </html>
   );
