@@ -3,6 +3,7 @@
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -87,6 +88,12 @@ export default function LoginPage() {
           >
             {loading ? "Signing In..." : "Secure Sign In"}
           </button>
+          
+          <div style={{ textAlign: "center", marginTop: "8px" }}>
+            <Link href="/auth/forgot-password" style={{ color: "#008236", fontSize: "13px", fontWeight: "600", textDecoration: "none" }}>
+              Forgot your password?
+            </Link>
+          </div>
         </form>
       </div>
     </div>

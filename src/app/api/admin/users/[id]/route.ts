@@ -55,10 +55,6 @@ export async function PATCH(
     if (typeof twoFactorEnabled === "boolean" && twoFactorEnabled === false) {
       updateData.twoFactorEnabled = false;
       updateData.twoFactorSecret = null;
-    } else if (typeof twoFactorEnabled === "boolean" && twoFactorEnabled === true) {
-        // Technically not possible to "activate" without a secret, 
-        // but we can toggle the requirement if the secret exists.
-        updateData.twoFactorEnabled = true;
     }
 
     const updatedUser = await prisma.user.update({

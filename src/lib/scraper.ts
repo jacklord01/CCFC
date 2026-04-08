@@ -29,7 +29,7 @@ export async function scrapeFinalWhistleMatches() {
     };
 
     // New Selector for FinalWhistle WordPress/SportsPress structure
-    $("#sp-tab-content-events article.sp-post-content").each((_, element) => {
+    $(".sp-template-event-blocks table tbody tr td").each((_, element) => {
       const dateText = $(element).find(".event-date a").first().text().trim(); // e.g. "28 March 2026"
       const title = $(element).find(".event-title a").text().trim(); // e.g. "Castlebar Celtic v Westport United FC"
       const resultsText = $(element).find(".event-results a").text().trim(); // e.g. "1 - 0"

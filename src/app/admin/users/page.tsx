@@ -63,7 +63,7 @@ export default function AdminUsersPage() {
     if (action === "DELETE") confirmMsg = "Are you sure you want to PERMANENTLY remove this admin? This action will be logged.";
     if (action === "SUSPEND") confirmMsg = "Suspend this user? They will be immediately blocked from all admin areas.";
     if (action === "ACTIVATE") confirmMsg = "Reactivate this admin account?";
-    if (action === "TOGGLE_MFA") confirmMsg = currentVal ? "Deactivate MFA for this user? (Keep secret safe but turn off requirement)" : "Reactivate MFA requirement for this user?";
+    if (action === "TOGGLE_MFA") confirmMsg = "Reset MFA? This disables the requirement and forces them to re-setup their authenticator on the next login.";
 
     if (!confirm(confirmMsg)) return;
 
@@ -75,7 +75,7 @@ export default function AdminUsersPage() {
         const body: any = {};
         if (action === "SUSPEND") body.isActive = false;
         if (action === "ACTIVATE") body.isActive = true;
-        if (action === "TOGGLE_MFA") body.twoFactorEnabled = !currentVal;
+        if (action === "TOGGLE_MFA") body.twoFactorEnabled = false; // Always force reset instead of toggle
         
         res = await fetch(`/api/admin/users/${userId}`, {
           method: "PATCH",
@@ -197,7 +197,7 @@ export default function AdminUsersPage() {
                             ) : (
                               <button onClick={() => handleUserAction(u.id, "ACTIVATE")} title="Reactivate Account" style={iconBtn}><CheckCircle2 size={16} color="#008236" /></button>
                             )}
-                            <button onClick={() => handleUserAction(u.id, "TOGGLE_MFA", u.twoFactorEnabled)} title="Deactivate/Reactivate MFA" style={iconBtn}><RefreshCcw size={16} color="#4b5563" /></button>
+                            <button onClick={() => handleUserAction(u.id, "TOGGLE_MFA", u.twoFactorEnabled)} title="Force Reset MFA Setup" style={iconBtn}><RefreshCcw size={16} color="#ef4444" /></button>
                             <button onClick={() => handleUserAction(u.id, "DELETE")} title="Remove User Permanently" style={iconBtn}><Trash2 size={16} color="#ef4444" /></button>
                           </>
                         )}

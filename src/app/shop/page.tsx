@@ -54,7 +54,24 @@ function ShopContent() {
   return (
     <div className="container section">
       <h1 style={{ textAlign: "center", marginBottom: "1rem" }}>Club Shop & Fundraising</h1>
-      <p style={{ textAlign: "center", color: "#6b7280", marginBottom: "3rem" }}>Support Castlebar Celtic FC through merchandise, tickets, and club games.</p>
+      <p style={{ textAlign: "center", color: "#6b7280", marginBottom: "2rem" }}>Support Castlebar Celtic FC through merchandise, tickets, and club games.</p>
+      
+      <div style={{ textAlign: "center", marginBottom: "3rem" }}>
+        <a 
+          href="https://castlebar-celtic.sumupstore.com/products" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          style={{ 
+            display: "inline-flex", alignItems: "center", gap: "8px", 
+            backgroundColor: "#008236", color: "white", textDecoration: "none", 
+            padding: "14px 28px", borderRadius: "8px", fontWeight: "800",
+            boxShadow: "0 10px 15px -3px rgba(0, 130, 54, 0.3)" 
+          }}
+        >
+          View Full Store on SumUp
+          <svg style={{ width: "16px", height: "16px" }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+        </a>
+      </div>
       
       <div style={{ display: "flex", gap: "1rem", justifyContent: "center", marginBottom: "3rem", flexWrap: "wrap" }}>
         {tabs.map((tab) => (
