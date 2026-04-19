@@ -14,7 +14,7 @@ export default async function NewsDetailsPage({ params }: { params: Promise<{ sl
     notFound();
   }
 
-  const { title, details, date, featuredImage, content } = article.fields;
+  const { title, excerpt, publishedDate, featuredImage, body } = article;
 
   return (
     <main style={{ backgroundColor: "#FFFFFF", maxWidth: "1920px", margin: "0 auto" }}>
@@ -66,7 +66,7 @@ export default async function NewsDetailsPage({ params }: { params: Promise<{ sl
         position: "relative",
         height: "562px",
         width: "100%",
-        background: `linear-gradient(0deg, rgba(11, 17, 29, 0.6), rgba(11, 17, 29, 0.6)), url('${featuredImage?.fields?.file?.url || "/image.jpg"}'), #D9D9D9`,
+        background: `linear-gradient(0deg, rgba(11, 17, 29, 0.6), rgba(11, 17, 29, 0.6)), url('${featuredImage || "/image.jpg"}'), #D9D9D9`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         display: "flex",
@@ -78,7 +78,7 @@ export default async function NewsDetailsPage({ params }: { params: Promise<{ sl
           <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "white" }}>
             <span style={{ fontSize: "24px" }}>📅</span>
             <span style={{ fontFamily: "Inter", fontWeight: 400, fontSize: "18px" }}>
-              {new Date(date || article.sys.createdAt).toLocaleDateString("en-US", { month: 'long', day: 'numeric', year: 'numeric' })}
+              {new Date(publishedDate).toLocaleDateString("en-US", { month: 'long', day: 'numeric', year: 'numeric' })}
             </span>
           </div>
           
@@ -91,7 +91,7 @@ export default async function NewsDetailsPage({ params }: { params: Promise<{ sl
               {title}
             </h1>
             <p style={{ fontFamily: "Inter", fontWeight: 400, fontSize: "26px", color: "white", margin: 0 }}>
-              {details}
+              {excerpt}
             </p>
           </div>
         </div>
@@ -108,7 +108,7 @@ export default async function NewsDetailsPage({ params }: { params: Promise<{ sl
         {/* Body Content */}
         <div style={{ flex: "1 1 937px", maxWidth: "937px", display: "flex", flexDirection: "column", gap: "30px" }}>
            <div style={{ fontFamily: "Inter", fontSize: "18px", lineHeight: "1.8", color: "#0B111D" }} className="rich-content">
-             {documentToReactComponents(content)}
+             {body && documentToReactComponents(body)}
            </div>
 
            {/* Branded "Legacy" Image Layout */}
